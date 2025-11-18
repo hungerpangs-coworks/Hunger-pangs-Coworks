@@ -1,0 +1,760 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Hunger Pangs CoWorks</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+      :root{
+        --brand:#000000; --brand-dark:#155EEF;
+        --brand-grad-start:#1E40AF; --brand-grad-end:#2563EB;
+        --ink:#0f172a; --muted:#667085; --line:#e6eaf0;
+        --bg:#F4F7FB; --panel:#FFFFFF; --success:#118D57; --error:#B00020;
+        --radius:14px;
+        --input-h:44px; --input-pad-x:12px; --input-left-pad:42px;
+      }
+
+      html, body { height:100%; }
+      body {
+        font-family: Inter, system-ui, -apple-system, Arial, sans-serif;
+        color: var(--ink);
+        background:
+          radial-gradient(60% 60% at 10% 0%, #E8F0FF 0%, transparent 70%),
+          linear-gradient(180deg, #F8FAFF 0%, var(--bg) 100%);
+        margin:0;
+      }
+
+      /* Header */
+      .hero { padding: 28px 16px 12px; text-align:center; }
+      .brand { display:inline-flex; align-items:center; justify-content:center; text-decoration:none; margin-bottom:10px; }
+      .brand .logo {
+        height: 56px; width: auto; display:block; object-fit:contain;
+        border-radius: 0; background: transparent;
+      }
+      @media (max-width:520px){ .brand .logo { height: 48px; } }
+
+      .hero .title { font-weight: 800; font-size: 34px; letter-spacing: .5px; color: var(--brand); margin: 0 0 6px; }
+      .hero .subtitle { font-size: 14px; color: var(--muted); }
+
+      /* Card */
+      .card {
+        max-width: 960px; margin: 16px auto 28px; background: var(--panel);
+        border: 1px solid var(--line); border-radius: var(--radius);
+        box-shadow: 0 8px 24px rgba(17, 24, 39, .06); padding: 18px;
+      }
+
+      /* Section header */
+      .section-head { display:flex; align-items:center; gap:12px; padding: 6px 0 14px; margin-bottom: 10px; border-bottom:1px solid var(--line); }
+      .badge { width:36px; height:36px; border-radius:999px; background:#ECF2FF; color:var(--brand); display:grid; place-items:center; font-weight:700; }
+      .h3 { font-size:22px; font-weight:700; }
+
+      /* Grid */
+      .grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+      .grid > div { min-width:0; }
+      @media (max-width: 780px){ .grid { grid-template-columns:1fr; } }
+
+      label { display:block; font-weight:600; margin:4px 0 6px; }
+
+      /* Fields */
+      .field { position:relative; }
+      .field input, .field select, .field textarea {
+        width:100%; box-sizing:border-box; height: var(--input-h);
+        padding: 0 var(--input-pad-x) 0 var(--input-left-pad);
+        border:1px solid var(--line); border-radius:12px;
+        background:#F7F9FC; outline:none;
+      }
+      .field textarea { height:auto; padding-top:10px; padding-bottom:10px; }
+      .field input:focus, .field select:focus, .field textarea:focus {
+        border-color: var(--brand);
+        box-shadow: 0 0 0 3px rgba(41,112,255,.12);
+        background:#fff;
+      }
+      .icon { position:absolute; left:12px; top:50%; transform:translateY(-50%); width:18px; height:18px; color:#94A3B8; display:inline-flex; }
+      .icon svg { width:18px; height:18px; stroke: currentColor; fill: none; stroke-width:1.8; }
+
+      /* Buttons */
+      .row-actions { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:10px; }
+      @media (max-width: 520px){ .row-actions { grid-template-columns:1fr; } }
+      .row-actions.single { grid-template-columns: 1fr; }
+      .btn { width:100%; padding:12px; border:none; border-radius:12px; font-weight:700; cursor:pointer; }
+      .btn-primary { color:#fff; background: linear-gradient(180deg, var(--brand-grad-start), var(--brand-grad-end)); }
+      .btn-primary[disabled] { opacity:.7; cursor:not-allowed; }
+      .btn-ghost { background:#fff; border:1px solid var(--line); }
+      .btn-lg { padding:16px; font-size:16px; border-radius:14px; }
+      .sticky-footer { position: sticky; bottom: 12px; background: transparent; }
+
+      .muted { color:var(--muted); font-size:12px; margin-top:6px; }
+      .ok { color:var(--success); margin-top:6px; }
+      .err { color:var(--error); margin-top:6px; }
+
+      #priceNote {
+        margin-top:4px;
+        font-weight:600;      /* bold */
+        color: var(--ink);    /* darker text */
+        font-size:13px;       /* slightly bigger */
+      }
+
+      /* Slots */
+      .slots-section { margin-top:14px; }
+      .slots-title { font-weight:700; margin:6px 0 8px; }
+      .slot-list { display:grid; gap:12px; grid-template-columns: repeat(2, minmax(0,1fr)); }
+      @media (max-width:780px){ .slot-list { grid-template-columns:1fr; } }
+      .slot { display:flex; gap:10px; align-items:flex-start; padding:12px; border:1px solid var(--line); border-radius:12px; background:#F8FAFF; }
+      .slot strong { display:block; font-size:15px; }
+
+      #confirmBox { border-top:1px dashed var(--line); padding-top:12px; margin-top:10px; }
+      .hide { display:none !important; }
+
+      /* Result cards */
+      .result { text-align:center; padding:24px 12px; }
+      .result .tick {
+        width:86px; height:86px; border-radius:999px; display:inline-grid; place-items:center;
+        margin:0 auto 16px; border:6px solid #8BD1FF; color:#1FB6FF; background:#E9F7FF;
+      }
+      .result .cross {
+        width:86px; height:86px; border-radius:999px; display:inline-grid; place-items:center;
+        margin:0 auto 16px; border:6px solid #FFB3B3; color:#FF4D4D; background:#FFF1F1;
+      }
+      .result h2 { margin:0 0 6px; font-size:28px; font-weight:800; color:#0F172A; }
+      .result p.sub { margin:0 0 18px; color:#64748B; }
+
+      .detail-box {
+        margin: 0 auto 18px; background:#F7FAFF; border:1px solid var(--line);
+        border-radius:12px; max-width:800px; padding:14px;
+        display:grid; grid-template-columns:1fr 1fr; gap:6px 12px;
+      }
+      .detail-box .k { text-align:left; color:#475569; }
+      .detail-box .v { text-align:right; font-weight:600; color:#0F172A; }
+      @media (max-width: 640px){ .detail-box { grid-template-columns:1fr; } .detail-box .v { text-align:left; } }
+    </style>
+
+    <!-- Razorpay Checkout JS -->
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+  </head>
+
+  <body>
+    <header class="hero" id="top">
+      <!-- Logo -->
+      <a class="brand" href="#top" aria-label="Hunger Pangs CoWorks Home">
+        <img class="logo" src="https://i.ibb.co/RkkYgGnP/HPC-Logo-removebg-preview.png" alt="Hunger Pangs CoWorks Logo" />
+      </a>
+
+      <h1 class="title">Hunger Pangs CoWorks</h1>
+      <div class="subtitle">Scan the QR • Choose a Slot • Pay &amp; Confirm</div>
+    </header>
+
+    <main class="card">
+      <div id="bookingUI">
+        <div class="section-head">
+          <div class="badge">1</div>
+          <div class="h3">Booking Details</div>
+        </div>
+
+        <div class="grid">
+          <div>
+            <label>Meeting Room</label>
+            <div class="field">
+              <span class="icon"><svg viewBox="0 0 24 24"><path d="M3 21h18M6 21V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v16M10 9h4M10 13h4M10 17h4" /></svg></span>
+              <select id="room"></select>
+            </div>
+          </div>
+
+          <div>
+            <label>Date</label>
+            <div class="field">
+              <span class="icon"><svg viewBox="0 0 24 24"><path d="M16 2v3M8 2v3M3 9h18M5 5h14a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2z"/></svg></span>
+              <input type="date" id="date" placeholder="dd-mm-yyyy">
+            </div>
+            <div id="dateHint" class="muted" style="display:none;">Past dates are disabled</div>
+          </div>
+
+          <div>
+            <label>Number of People</label>
+            <div class="field">
+              <span class="icon"><svg viewBox="0 0 24 24"><path d="M7 21v-2a4 4 0 0 1 4-4h2a4 4 0 0 1 4 4v2M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z"/></svg></span>
+              <input type="number" id="pax" min="1" value="2" placeholder="2">
+            </div>
+          </div>
+
+          <div>
+            <label>Full Name</label>
+            <div class="field">
+              <span class="icon"><svg viewBox="0 0 24 24"><path d="M12 12a5 5 0 1 0-5-5 5 5 0 0 0 5 5Zm6 9a6 6 0 0 0-12 0"/></svg></span>
+              <input id="name" placeholder="John Doe" autocomplete="name">
+            </div>
+          </div>
+
+          <div>
+            <label>Email</label>
+            <div class="field">
+              <span class="icon"><svg viewBox="0 0 24 24"><path d="M4 6h16a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2zm0 0 8 6 8-6"/></svg></span>
+              <input id="email" type="email" placeholder="name@example.com" autocomplete="email" required>
+            </div>
+          </div>
+
+          <div>
+            <label>Phone</label>
+            <div class="field">
+              <span class="icon"><svg viewBox="0 0 24 24"><path d="M22 16.92v2a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 3.15 8.81 19.79 19.79 0 0 1 .08 0a2 2 0 0 1 2-2h2a2 2 0 0 1 2 1.72 12.44 12.44 0 0 0 .67 2.73 2 2 0 0 1-.45 2.11L5.6 7.6a16 16 0 0 0 6.8 6.8l3-3a2 2 0 0 1 2.11-.45 12.44 12.44 0 0 0 2.73.67A2 2 0 0 1 22 16.92z"/></svg></span>
+              <input id="phone" type="tel" inputmode="numeric" placeholder="9876543210" pattern="[6-9][0-9]{9}" required>
+            </div>
+          </div>
+
+          <div class="grid" style="grid-column:1/-1; grid-template-columns:1fr;">
+            <div>
+              <label>Employee Names</label>
+              <div class="field">
+                <span class="icon"><svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2M8 7a4 4 0 1 0 0-8 4 4 0 0 0 0 8Zm8 8a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z"/></svg></span>
+                <input id="employees" placeholder="e.g., A Sharma, R Gupta">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div id="priceNote" class="muted"></div>
+        <div id="status"></div>
+
+        <div class="row-actions">
+          <button class="btn btn-primary" id="btnFind">Find Available Slots</button>
+          <button class="btn btn-ghost" id="btnReset" onclick="clearForm()">Reset</button>
+        </div>
+
+        <section id="slotsWrap" class="slots-section hide">
+          <div class="slots-title">Available 1-hour slots</div>
+          <div id="slots" class="slot-list"></div>
+        </section>
+
+        <div class="row-actions single sticky-footer">
+          <button class="btn btn-primary btn-lg hide" id="btnConfirm" disabled>Pay &amp; Confirm</button>
+        </div>
+
+        <div id="confirmBox" class="hide">
+          <div id="confirmText" class="muted"></div>
+        </div>
+      </div>
+
+      <div id="resultWrap" class="hide"></div>
+    </main>
+
+    <script>
+      // ==== CONFIG: Apps Script Web App URL ====
+      const API_BASE = 'https://script.google.com/macros/s/AKfycbwvPb4u5oTwWd56uSyQ2qpQNfvTB1JLm196uZ_1WCAjVjVSZOPWEk7NM88MGnDhmcgrpg/exec';
+
+      const prefillRoom = '';  // no server templating now
+
+      let roomsConfig = null;
+      let runtime = { mode:'MOCK', keyId:'', merchantName:'Hunger Pangs CoWorks' };
+
+      // booking state
+      let currentBookingId = null;
+      let lastPayload = null;
+      let lastAmount = 0;
+      let selectedSlots = [];
+      let lastPricePerHour = 0;
+
+      // ---------- generic API helper (GET with JSON in query) ----------
+      async function callApi(action, payload) {
+        const url =
+          API_BASE +
+          '?action=' + encodeURIComponent(action) +
+          '&payload=' + encodeURIComponent(JSON.stringify(payload || {}));
+
+        const res = await fetch(url, { method: 'GET' });
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        return res.json();
+      }
+
+      // ---------- UI helpers ----------
+      function setFindButton(text, handler, disabled=false){
+        const btn = document.getElementById('btnFind');
+        btn.textContent = text;
+        btn.onclick = handler;
+        btn.disabled = !!disabled;
+      }
+
+      function setConfirmButton(visible, disabled){
+        const b = document.getElementById('btnConfirm');
+        b.classList.toggle('hide', !visible);
+        if (typeof disabled !== 'undefined') b.disabled = !!disabled;
+      }
+
+      function setStatus(msg, type){
+        const el = document.getElementById('status');
+        el.className = type || '';
+        el.textContent = msg || '';
+      }
+
+      function showConfirm(t){
+        const c = document.getElementById('confirmBox');
+        document.getElementById('confirmText').textContent = t;
+        c.classList.remove('hide');
+      }
+
+      function hideConfirm(){
+        document.getElementById('confirmBox').classList.add('hide');
+        document.getElementById('confirmText').textContent = '';
+      }
+
+      function showResult(html){
+        document.getElementById('bookingUI').classList.add('hide');
+        const r = document.getElementById('resultWrap');
+        r.innerHTML = html;
+        r.classList.remove('hide');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+
+      function backToBooking(){
+        document.getElementById('resultWrap').classList.add('hide');
+        document.getElementById('resultWrap').innerHTML = '';
+        document.getElementById('bookingUI').classList.remove('hide');
+        clearForm();
+      }
+
+      // ---------- validation ----------
+      function isValidEmail(e){ return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test((e||'').trim()); }
+      function isValidPhone(p){ return /^[6-9]\d{9}$/.test((p||'').trim()); }
+
+      // ---------- past date handling ----------
+      function isoTodayLocal(){
+        const now = new Date();
+        const tzOff = now.getTimezoneOffset() * 60000;
+        return new Date(now - tzOff).toISOString().slice(0,10);
+      }
+
+      function lockPastDates(){
+        const el = document.getElementById('date');
+        const t = isoTodayLocal();
+        el.min = t;
+        if (!el.value || el.value < t) el.value = t;
+        updateDateState();
+      }
+
+      function updateDateState(){
+        const el   = document.getElementById('date');
+        const hint = document.getElementById('dateHint');
+        const btn  = document.getElementById('btnFind');
+        const t = isoTodayLocal();
+
+        if (!el.value){
+          hint.style.display = 'none';
+          btn.disabled = true;
+          return;
+        }
+        if (el.value < t){
+          hint.style.display = 'block';
+          hint.textContent = 'Past dates are disabled';
+          btn.disabled = true;
+        } else {
+          hint.style.display = 'none';
+          btn.disabled = false;
+        }
+      }
+
+      // ---------- formatting ----------
+      function toHuman(hhmm){
+        const [H,M] = hhmm.split(':').map(Number);
+        const am = H < 12;
+        let h = H % 12;
+        if (h === 0) h = 12;
+        return `${h}:${String(M).padStart(2,'0')} ${am ? 'am' : 'pm'}`;
+      }
+
+      function toHumanRange(open, close){
+        return `${toHuman(open)} – ${toHuman(close)}`;
+      }
+
+      function maxHHMM(a,b){
+        const [ah,am] = a.split(':').map(Number);
+        const [bh,bm] = b.split(':').map(Number);
+        if (ah > bh) return a;
+        if (ah < bh) return b;
+        return (am >= bm) ? a : b;
+      }
+
+      // ---------- bootstrap: load runtime + rooms from backend ----------
+      async function loadRuntimeAndRooms(){
+        try {
+          const rt = await callApi('runtime', {});
+          runtime = rt || runtime;
+
+          const r = await callApi('rooms', {});
+          roomsConfig = r || {};
+
+          const sel = document.getElementById('room');
+          sel.innerHTML = '';
+          Object.keys(roomsConfig).forEach(k=>{
+            const o = document.createElement('option');
+            o.value = k;
+            o.textContent = `${k} (₹${roomsConfig[k].price}/hr)`;
+            sel.appendChild(o);
+          });
+
+          if (prefillRoom && roomsConfig[prefillRoom]) sel.value = prefillRoom;
+          if (Object.keys(roomsConfig).length === 1) sel.value = Object.keys(roomsConfig)[0];
+
+          updatePriceNote();
+          setFindButton('Find Available Slots', findSlots);
+          setConfirmButton(false);
+        } catch (err){
+          console.error(err);
+          setStatus('Server error while loading rooms. Please try again.', 'err');
+          setFindButton('Retry', loadRuntimeAndRooms);
+        }
+      }
+
+      function updatePriceNote(){
+        if (!roomsConfig) return;
+        const room = document.getElementById('room').value;
+        if (!room || !roomsConfig[room]) return;
+        const cfg = roomsConfig[room];
+        const openAdj = maxHHMM(cfg.officeOpen, '09:00');
+        const hoursHuman = toHumanRange(openAdj, cfg.officeClose);
+        document.getElementById('priceNote').textContent =
+          `Office hours: ${hoursHuman} • Rate: ₹${cfg.price} per hour`;
+      }
+
+      // ---------- clear ----------
+      function clearForm(){
+        document.getElementById('pax').value = 2;
+        document.getElementById('name').value = '';
+        document.getElementById('email').value = '';
+        document.getElementById('phone').value = '';
+        document.getElementById('employees').value = '';
+        document.getElementById('slots').innerHTML = '';
+        document.getElementById('slotsWrap').classList.add('hide');
+        hideConfirm();
+        setStatus('','');
+
+        currentBookingId = null;
+        lastPayload = null;
+        lastAmount = 0;
+        selectedSlots = [];
+
+        setFindButton('Find Available Slots', findSlots);
+        setConfirmButton(false);
+        updateDateState();
+      }
+
+      // ---------- slots ----------
+      async function findSlots(){
+        hideConfirm();
+        updateDateState();
+        if (document.getElementById('btnFind').disabled) return;
+
+        const name  = document.getElementById('name').value.trim();
+        const email = document.getElementById('email').value.trim();
+        const phone = document.getElementById('phone').value.trim();
+
+        if (!name)              return setStatus('Please enter your name.','err');
+        if (!isValidEmail(email)) return setStatus('Please enter a valid email address.','err');
+        if (!isValidPhone(phone)) return setStatus('Please enter a valid 10-digit phone number.','err');
+
+        const payload = {
+          room: document.getElementById('room').value,
+          date: document.getElementById('date').value,
+          pax:  parseInt(document.getElementById('pax').value || '1', 10)
+        };
+        if (!payload.date) return setStatus('Please select a date.','err');
+
+        setStatus('Finding available slots…','');
+        setFindButton('Finding…', ()=>{}, true);
+        setConfirmButton(false);
+
+        try {
+          const res = await callApi('slots', payload);
+          if (!res.ok){
+            setStatus(`❌ ${res.reason || 'Could not fetch slots'}`, 'err');
+            setFindButton('Find Available Slots', findSlots);
+            return;
+          }
+          lastPricePerHour = Number(res.pricePerHour || 0);
+          renderSlots(res.slots, res.pricePerHour);
+          setFindButton('Find Available Slots', findSlots);
+          setConfirmButton(true, true);
+          setStatus(
+            res.slots.length
+              ? 'Select one or more slots, then click Pay & Confirm.'
+              : 'No slots available for this date.',
+            res.slots.length ? 'ok' : 'err'
+          );
+        } catch(err){
+          console.error(err);
+          setStatus('Server error while fetching slots. Please try again.','err');
+          setFindButton('Find Available Slots', findSlots);
+        }
+      }
+
+      function renderSlots(slots, pricePerHour){
+        const wrap = document.getElementById('slots');
+        wrap.innerHTML = '';
+        document.getElementById('slotsWrap').classList.remove('hide');
+        selectedSlots = [];
+
+        if (!slots || !slots.length){
+          wrap.innerHTML = '<div class="muted">No available 1-hour slots.</div>';
+          return;
+        }
+
+        slots.forEach((s,i)=>{
+          const id = 'slot_' + i;
+          const row = document.createElement('label');
+          row.className = 'slot';
+          row.innerHTML = `
+            <input type="checkbox" name="slot" id="${id}" value="${s.start}|${s.end}" />
+            <div><strong>${s.label}</strong></div>
+          `;
+          const input = row.querySelector('input');
+          input.addEventListener('change', function(){
+            if (this.checked){
+              selectedSlots.push({ start:s.start, end:s.end, label:s.label, price:pricePerHour });
+            } else {
+              selectedSlots = selectedSlots.filter(x => !(x.start === s.start && x.end === s.end));
+            }
+            const cnt = selectedSlots.length;
+            const est = cnt * (pricePerHour || 0);
+            if (cnt > 0){
+              showConfirm(`Selected ${cnt} slot${cnt>1?'s':''}. Estimated: ₹${est}`);
+              setConfirmButton(true, false);
+            } else {
+              hideConfirm();
+              setConfirmButton(true, true);
+            }
+          });
+          wrap.appendChild(row);
+        });
+      }
+
+      // ---------- confirmation / failure views ----------
+      function showSuccessCard(data){
+        const slotLines = (data.slots || [])
+          .map(t=>`<div style="text-align:right;">${t}</div>`)
+          .join('');
+        const html = `
+          <div class="result">
+            <div class="tick">
+              <svg viewBox="0 0 24 24" width="42" height="42" stroke="currentColor" fill="none" stroke-width="2">
+                <path d="M20 6L9 17l-5-5"/>
+              </svg>
+            </div>
+            <h2>Booking Confirmed!</h2>
+            <p class="sub">Your meeting room has been successfully reserved.</p>
+
+            <div class="detail-box">
+              <div class="k">Room:</div><div class="v">${data.room}</div>
+              <div class="k">Date:</div><div class="v">${data.date}</div>
+              <div class="k">Time Slot(s):</div><div class="v" style="text-align:left">${slotLines}</div>
+              <div class="k">People:</div><div class="v">${data.pax}</div>
+              <div class="k">Total Amount:</div><div class="v">₹${data.amount}</div>
+            </div>
+
+            <div class="row-actions single">
+              <button class="btn btn-primary btn-lg" onclick="backToBooking()">Make Another Booking</button>
+            </div>
+          </div>
+        `;
+        showResult(html);
+      }
+
+      function showFailureCard(message){
+        const html = `
+          <div class="result">
+            <div class="cross">
+              <svg viewBox="0 0 24 24" width="42" height="42" stroke="currentColor" fill="none" stroke-width="2">
+                <path d="M18 6L6 18M6 6l12 12"/>
+              </svg>
+            </div>
+            <h2>Payment Failed</h2>
+            <p class="sub">${message || 'Something went wrong while processing your payment.'}</p>
+
+            <div class="row-actions">
+              <button class="btn btn-primary btn-lg" onclick="retryPayment()">Try Payment Again</button>
+              <button class="btn btn-ghost btn-lg" onclick="backToBooking()">Back to Slots</button>
+            </div>
+          </div>
+        `;
+        showResult(html);
+      }
+
+      function retryPayment(){
+        document.getElementById('resultWrap').classList.add('hide');
+        document.getElementById('resultWrap').innerHTML = '';
+        document.getElementById('bookingUI').classList.remove('hide');
+        if (currentBookingId) {
+          setStatus('Reopening payment…','');
+          openRazorpay();
+        } else {
+          setStatus('Please select slot(s) and click Pay & Confirm.','');
+        }
+      }
+
+      // ---------- payment path ----------
+      document.getElementById('btnConfirm').onclick = initiateThenPay;
+
+      async function initiateThenPay(){
+        if (!selectedSlots.length) return setStatus('Please select at least one slot.','err');
+
+        const payload = {
+          room: document.getElementById('room').value,
+          date: document.getElementById('date').value,
+          slots: selectedSlots.map(s=>({ start:s.start, end:s.end })),
+          pax:  parseInt(document.getElementById('pax').value || '1',10),
+          name: document.getElementById('name').value.trim(),
+          email:document.getElementById('email').value.trim(),
+          phone:document.getElementById('phone').value.trim(),
+          employees: document.getElementById('employees').value.trim()
+        };
+        lastPayload = payload;
+
+        setConfirmButton(true, true);
+        setStatus('Creating booking…','');
+
+        try {
+          const init = await callApi('initBooking', payload);
+          if (!init || !init.ok){
+            setStatus('❌ Could not create booking: ' + (init && init.reason ? init.reason : 'Unknown'), 'err');
+            setConfirmButton(true, false);
+            return;
+          }
+          currentBookingId = init.bookingId;
+          lastAmount = init.amount;
+
+          if (runtime.mode === 'MOCK'){
+            setStatus(`Slot(s) locked. Amount: ₹${init.amount}. Processing mock payment…`, 'ok');
+            showSuccessCard({
+              room: payload.room,
+              date: payload.date,
+              slots: selectedSlots.map(s=>s.label || (toHuman(s.start)+' – '+toHuman(s.end))),
+              pax: payload.pax,
+              amount: lastAmount
+            });
+          } else {
+            setStatus('Opening payment…','');
+            openRazorpay();
+          }
+        } catch(err){
+          console.error(err);
+          setStatus('Server error while creating booking. Please try again.','err');
+          setConfirmButton(true, false);
+        }
+      }
+
+      async function openRazorpay(){
+        try {
+          const o = await callApi('createOrder', { bookingId: currentBookingId });
+          if (!o || !o.ok){
+            showFailureCard(o && o.reason ? o.reason : 'Order creation failed.');
+            setConfirmButton(true, false);
+            return;
+          }
+
+          const firstLabel = selectedSlots[0]
+            ? (selectedSlots[0].label || (toHuman(selectedSlots[0].start)+' – '+toHuman(selectedSlots[0].end)))
+            : '';
+          const desc = (lastPayload?.room || '') +
+                       ' • ' + (lastPayload?.date || '') +
+                       (firstLabel ? (' • ' + firstLabel + (selectedSlots.length>1 ? ` (+${selectedSlots.length-1} more)` : '')) : '');
+
+          const options = {
+            key:      o.keyId,
+            order_id: o.orderId,
+            amount:   o.amount,
+            currency: o.currency || 'INR',
+            name:     o.name || runtime.merchantName,
+            description: desc,
+            prefill:  o.prefill || {},
+            notes:    { bookingId: currentBookingId },
+
+            handler: function(resp){
+              // notify backend that client success happened (webhook will still be source of truth)
+              callApi('clientSuccess', {
+                bookingId: currentBookingId,
+                paymentId: resp.razorpay_payment_id,
+                orderId:   resp.razorpay_order_id
+              }).catch(()=>{});
+              setStatus('Payment success. Finalizing booking…','ok');
+            },
+
+            modal: { ondismiss:function(){ setConfirmButton(true,false); } },
+            theme: { color: '#1D4ED8' }
+          };
+
+          setStatus('Opening payment gateway…','');
+          setConfirmButton(true,true);
+          startFinalizePolling(currentBookingId, true);
+
+          const rzp = new Razorpay(options);
+          rzp.on('payment.failed', function(resp){
+            const msg = resp?.error?.description || 'Your payment could not be completed.';
+            showFailureCard(msg);
+            setConfirmButton(true, false);
+          });
+          rzp.open();
+
+        } catch(err){
+          console.error(err);
+          showFailureCard('Order creation failed. Please try again.');
+          setConfirmButton(true, false);
+        }
+      }
+
+      // ---------- polling with server fallback ----------
+      function startFinalizePolling(bookingId, enableFallback){
+        let tries = 0;
+        const maxTries = 30; // ~60s
+
+        const timer = setInterval(async () => {
+          tries++;
+          try {
+            const s = await callApi('status', { bookingId });
+            if (!s || !s.ok) return;
+
+            if (s.status === 'booked'){
+              clearInterval(timer);
+              showSuccessCard({
+                room: lastPayload.room,
+                date: lastPayload.date,
+                slots: selectedSlots.map(s=>s.label || (toHuman(s.start)+' – '+toHuman(s.end))),
+                pax: lastPayload.pax,
+                amount: lastAmount
+              });
+              return;
+            }
+
+            if (s.status === 'paid_but_slot_taken' || s.status === 'failed'){
+              clearInterval(timer);
+              showFailureCard('Payment received but booking failed due to slot conflict. Please contact support.');
+              setFindButton('Find Available Slots', findSlots);
+              setConfirmButton(true, false);
+              return;
+            }
+
+            if (enableFallback && tries % 5 === 0){
+              // ask server to finalize if payment captured but webhook missed
+              callApi('finalize', { bookingId }).catch(()=>{});
+            }
+          } catch(err){
+            console.error(err);
+          }
+
+          if (tries >= maxTries){
+            clearInterval(timer);
+            showFailureCard('Payment received. Booking is still processing — please try again in a moment.');
+            setFindButton('Find Available Slots', findSlots);
+            setConfirmButton(true, false);
+          }
+        }, 2000);
+      }
+
+      // ---------- init ----------
+      document.getElementById('btnFind').onclick = findSlots;
+      document.getElementById('date').addEventListener('input', updateDateState);
+      document.getElementById('room').addEventListener('change', updatePriceNote);
+
+      lockPastDates();
+      loadRuntimeAndRooms();
+    </script>
+  </body>
+</html>
