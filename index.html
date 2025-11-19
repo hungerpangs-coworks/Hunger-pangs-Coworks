@@ -1,761 +1,255 @@
 <!DOCTYPE html>
-<html>
-  <head>
-    <meta charset="utf-8" />
-    <base target="_top" />
-    <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>Hunger Pangs CoWorks</title>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <!-- SEO -->
+  <title>Hunger Pangs CoWorks | Book Meeting Rooms in Seconds</title>
+  <meta name="title" content="Hunger Pangs CoWorks | Book Meeting Rooms in Seconds">
+  <meta name="description" content="Scan, select, and book modern meeting rooms at Hunger Pangs CoWorks. Flexible hourly pricing, real-time availability, and secure online payments.">
 
-    <style>
-      :root{
-        --brand:#000000; --brand-dark:#155EEF;
-        --brand-grad-start:#1E40AF; --brand-grad-end:#2563EB;
-        --ink:#0f172a; --muted:#667085; --line:#e6eaf0;
-        --bg:#F4F7FB; --panel:#FFFFFF; --success:#118D57; --error:#B00020;
-        --radius:14px;
-        --input-h:44px; --input-pad-x:12px; --input-left-pad:42px;
-      }
+  <!-- Open Graph / Social -->
+  <meta property="og:title" content="Hunger Pangs CoWorks | Book Meeting Rooms in Seconds">
+  <meta property="og:description" content="Scan, select, and book modern meeting rooms with secure online payments.">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="https://i.ibb.co/RkkYgGnP/HPC-Logo-removebg-preview.png">
+  <!-- ✅ your actual GitHub Pages URL -->
+  <meta property="og:url" content="https://hungerpangs-coworks.github.io/Hunger-pangs-Coworks/">
 
-      html, body { height:100%; }
-      body {
-        font-family: Inter, system-ui, -apple-system, Arial, sans-serif;
-        color: var(--ink);
-        background:
-          radial-gradient(60% 60% at 10% 0%, #E8F0FF 0%, transparent 70%),
-          linear-gradient(180deg, #F8FAFF 0%, var(--bg) 100%);
-        margin:0;
-      }
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
-      /* Header */
-      .hero { padding: 28px 16px 12px; text-align:center; }
-      .brand { display:inline-flex; align-items:center; justify-content:center; text-decoration:none; margin-bottom:10px; }
-      .brand .logo {
-        height: 56px; width: auto; display:block; object-fit:contain;
-        border-radius: 0; background: transparent;
-      }
-      @media (max-width:520px){ .brand .logo { height: 48px; } }
+  <style>
+    :root {
+      --brand:#2563eb;
+      --brand-700:#1d4ed8;
+      --ink:#0f172a;
+      --muted:#475569;
+      --bg:#ffffff;
+      --card:#ffffff;
+      --shadow:0 10px 30px rgba(2,6,23,.08);
+      --radius:16px;
+    }
+    * { box-sizing: border-box; }
+    html, body {
+      margin:0; padding:0;
+      font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+      color:var(--ink); background:#fff;
+    }
 
-      .hero .title { font-weight: 800; font-size: 34px; letter-spacing: .5px; color: var(--brand); margin: 0 0 6px; }
-      .hero .subtitle { font-size: 14px; color: var(--muted); }
+    /* HERO BG */
+    .hero-wrap{
+      background:
+        radial-gradient(1200px 600px at 20% 0%, rgba(37,99,235,.12), transparent 60%),
+        radial-gradient(1000px 500px at 80% -10%, rgba(37,99,235,.10), transparent 55%),
+        linear-gradient(180deg, #f5f8ff 0%, #f7faff 30%, #ffffff 100%);
+    }
 
-      /* Card */
-      .card {
-        max-width: 960px; margin: 16px auto 28px; background: var(--panel);
-        border: 1px solid var(--line); border-radius: var(--radius);
-        box-shadow: 0 8px 24px rgba(17, 24, 39, .06); padding: 18px;
-      }
+    .container { width:min(1120px, 92%); margin-inline:auto; }
 
-      /* Section header */
-      .section-head { display:flex; align-items:center; gap:12px; padding: 6px 0 14px; margin-bottom: 10px; border-bottom:1px solid var(--line); }
-      .badge { width:36px; height:36px; border-radius:999px; background:#ECF2FF; color:var(--brand); display:grid; place-items:center; font-weight:700; }
-      .h3 { font-size:22px; font-weight:700; }
+    /* HEADER POLISH (sticky + centered) */
+    header.sticky {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(255,255,255,0.9);
+      backdrop-filter: saturate(150%) blur(6px);
+      border-bottom: 1px solid rgba(15,23,42,.06);
+      box-shadow: 0 4px 16px rgba(2,6,23,.05);
+    }
+    .topbar {
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:14px 0;
+      min-height:64px;
+    }
+    .brand {
+      display:flex;
+      align-items:center;
+      gap:12px;
+      color:var(--ink);
+      text-decoration:none;
+    }
+    .brand img.logo {
+      width:44px; height:auto; border-radius:0; vertical-align:middle;
+    }
+    .brand .brand-title{
+      font-weight:800;
+      font-size: clamp(22px, 3vw, 30px);
+      letter-spacing:-0.01em;
+      line-height:1.1;
+      white-space:nowrap;
+    }
 
-      /* Grid */
-      .grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
-      .grid > div { min-width:0; }
-      @media (max-width: 780px){ .grid { grid-template-columns:1fr; } }
+    /* BUTTONS */
+    .btn { appearance:none; border:none; cursor:pointer; font-weight:600; border-radius:10px; padding:12px 18px; }
+    .btn.primary{ background:var(--brand); color:#fff; box-shadow:0 8px 20px rgba(37,99,235,.28); }
+    .btn.primary:hover{ background:var(--brand-700); }
+    .btn.ghost{ background:transparent; color:var(--ink); }
 
-      label { display:block; font-weight:600; margin:4px 0 6px; }
+    /* HERO CONTENT */
+    .hero { text-align:center; padding:56px 0 72px; }
+    .kicker { display:inline-flex; gap:8px; align-items:center; color:var(--brand-700); font-weight:600; background:rgba(37,99,235,.08); padding:8px 12px; border-radius:999px; }
+    .headline { font-size: clamp(36px, 6.5vw, 64px); line-height:1.04; letter-spacing:-0.02em; margin:16px 0 12px; font-weight:800; }
+    .headline .accent { color:var(--brand); }
+    .subhead { max-width:760px; margin:0 auto; color:var(--muted); font-size:18px; }
+    .cta-row { display:flex; gap:12px; justify-content:center; margin-top:26px; flex-wrap:wrap; }
 
-      /* Fields */
-      .field { position:relative; }
-      .field input, .field select, .field textarea {
-        width:100%; box-sizing:border-box; height: var(--input-h);
-        padding: 0 var(--input-pad-x) 0 var(--input-left-pad);
-        border:1px solid var(--line); border-radius:12px;
-        background:#F7F9FC; outline:none;
-      }
-      .field textarea { height:auto; padding-top:10px; padding-bottom:10px; }
-      .field input:focus, .field select:focus, .field textarea:focus {
-        border-color: var(--brand);
-        box-shadow: 0 0 0 3px rgba(41,112,255,.12);
-        background:#fff;
-      }
-      .icon { position:absolute; left:12px; top:50%; transform:translateY(-50%); width:18px; height:18px; color:#94A3B8; display:inline-flex; }
-      .icon svg { width:18px; height:18px; stroke: currentColor; fill: none; stroke-width:1.8; }
+    /* WHY CHOOSE US */
+    .features { padding:56px 0; background:#ffffff; }
+    .section-title { text-align:center; font-size:32px; font-weight:800; margin-bottom:10px; color:var(--ink); }
+    .section-sub { text-align:center; color:var(--muted); margin-bottom:28px; }
+    .cards { display:grid; gap:18px; grid-template-columns: repeat(3, 1fr); }
+    .card { background:var(--card); padding:24px; border-radius:var(--radius); box-shadow:var(--shadow); border:1px solid rgba(15,23,42,.06); }
+    .card h3 { display:flex; align-items:center; gap:10px; margin:4px 0 8px; font-size:18px; }
+    .card p { color:var(--muted); line-height:1.6; margin:0; }
+    .icon { width:36px; height:36px; display:grid; place-items:center; border-radius:10px; background:rgba(37,99,235,.10); color:var(--brand-700); }
 
-      /* Buttons */
-      .row-actions { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:10px; }
-      @media (max-width: 520px){ .row-actions { grid-template-columns:1fr; } }
-      .row-actions.single { grid-template-columns: 1fr; }
-      .btn { width:100%; padding:12px; border:none; border-radius:12px; font-weight:700; cursor:pointer; }
-      .btn-primary { color:#fff; background: linear-gradient(180deg, var(--brand-grad-start), var(--brand-grad-end)); }
-      .btn-primary[disabled] { opacity:.7; cursor:not-allowed; }
-      .btn-ghost { background:#fff; border:1px solid var(--line); }
-      .btn-lg { padding:16px; font-size:16px; border-radius:14px; }
-      .sticky-footer { position: sticky; bottom: 12px; background: transparent; }
+    /* HOW IT WORKS */
+    .how { padding:64px 0; background:#f6f9ff; }
+    .steps { display:grid; grid-template-columns: repeat(3, 1fr); gap:24px; align-items:start; }
+    .step { background:#fff; border:1px solid rgba(15,23,42,.06); border-radius:var(--radius); padding:24px; box-shadow:var(--shadow); text-align:center; }
+    .badge { width:50px; height:50px; display:grid; place-items:center; margin:0 auto 10px; border-radius:50%; background:rgba(37,99,235,.12); color:var(--brand-700); font-weight:800; }
 
-      .muted { color:var(--muted); font-size:12px; margin-top:6px; }
-      .ok { color:var(--success); margin-top:6px; }
-      .err { color:var(--error); margin-top:6px; }
-      #priceNote {
-        margin-top:4px;
-        font-weight:600;        /* bold */
-        color: var(--ink);      /* darker */
-        font-size:13px;         /* slightly bigger */
-      }
+    /* CTA */
+    .cta-bleed { background:#f2f6ff; padding:64px 0 84px; width:100%; }
+    .cta-inner{
+      background:#ffffff; color:var(--ink);
+      border-radius:22px; padding:36px 28px;
+      display:grid; place-items:center; gap:14px;
+      box-shadow:var(--shadow); border:1px solid rgba(15,23,42,.08);
+    }
+    .cta h3{ margin:0; font-size:28px; letter-spacing:-.01em; color:var(--brand-700); }
+    .cta p{ margin:0; opacity:.95; color:var(--muted); }
 
-      /* Slots */
-      .slots-section { margin-top:14px; }
-      .slots-title { font-weight:700; margin:6px 0 8px; }
-      .slot-list { display:grid; gap:12px; grid-template-columns: repeat(2, minmax(0,1fr)); }
-      @media (max-width:780px){ .slot-list { grid-template-columns:1fr; } }
-      .slot { display:flex; gap:10px; align-items:flex-start; padding:12px; border:1px solid var(--line); border-radius:12px; background:#F8FAFF; }
-      .slot strong { display:block; font-size:15px; }
+    /* FOOTER */
+    footer{ background:#ffffff; color:var(--ink); padding:36px 0 18px; border-top:1px solid rgba(0,0,0,0.05); }
+    .footgrid{ display:grid; grid-template-columns: 2fr 1fr 1fr 1.2fr; gap:24px; }
+    .footgrid h4{ color:var(--brand-700); margin:0 0 10px; }
+    .footgrid a{ color:var(--muted); text-decoration:none; display:block; padding:4px 0; }
+    .foot-note{ border-top:1px solid rgba(0,0,0,.08); margin-top:18px; padding-top:16px; font-size:14px; color:var(--muted); }
 
-      #confirmBox { border-top:1px dashed var(--line); padding-top:12px; margin-top:10px; }
-      .hide { display:none !important; }
-
-      /* Result cards */
-      .result { text-align:center; padding:24px 12px; }
-      .result .tick {
-        width:86px; height:86px; border-radius:999px; display:inline-grid; place-items:center;
-        margin:0 auto 16px; border:6px solid #8BD1FF; color:#1FB6FF; background:#E9F7FF;
-      }
-      .result .cross {
-        width:86px; height:86px; border-radius:999px; display:inline-grid; place-items:center;
-        margin:0 auto 16px; border:6px solid #FFB3B3; color:#FF4D4D; background:#FFF1F1;
-      }
-      .result h2 { margin:0 0 6px; font-size:28px; font-weight:800; color:#0F172A; }
-      .result p.sub { margin:0 0 18px; color:#64748B; }
-
-      .detail-box {
-        margin: 0 auto 18px; background:#F7FAFF; border:1px solid var(--line);
-        border-radius:12px; max-width:800px; padding:14px;
-        display:grid; grid-template-columns:1fr 1fr; gap:6px 12px;
-      }
-      .detail-box .k { text-align:left; color:#475569; }
-      .detail-box .v { text-align:right; font-weight:600; color:#0F172A; }
-      @media (max-width: 640px){ .detail-box { grid-template-columns:1fr; } .detail-box .v { text-align:left; } }
-    </style>
-
-    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
-  </head>
-
-  <body>
-    <header class="hero" id="top">
-      <!-- Logo -->
-      <a class="brand" href="#top" aria-label="Hunger Pangs CoWorks Home">
-        <img class="logo" src="https://i.ibb.co/RkkYgGnP/HPC-Logo-removebg-preview.png" alt="Hunger Pangs CoWorks Logo" />
-      </a>
-
-      <h1 class="title">Hunger Pangs CoWorks</h1>
-      <div class="subtitle">Scan the QR • Choose a Slot • Pay &amp; Confirm</div>
+    @media (max-width: 980px){
+      .cards{ grid-template-columns: 1fr; }
+      .steps{ grid-template-columns: 1fr; }
+      .footgrid{ grid-template-columns: 1fr 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="hero-wrap">
+    <header class="sticky">
+      <div class="container topbar">
+        <!-- Brand centered -->
+        <a class="brand" href="#top" aria-label="Hunger Pangs CoWorks Home">
+          <img class="logo" src="https://i.ibb.co/RkkYgGnP/HPC-Logo-removebg-preview.png" alt="Hunger Pangs CoWorks Logo" />
+          <span class="brand-title">Hunger Pangs CoWorks</span>
+        </a>
+      </div>
     </header>
 
-    <main class="card">
-      <div id="bookingUI">
-        <div class="section-head">
-          <div class="badge">1</div>
-          <div class="h3">Booking Details</div>
-        </div>
+    <section class="container hero" id="top">
+      <span class="kicker">✨ Professional Meeting Spaces</span>
+      <h1 class="headline">Book Meeting Rooms<br><span class="accent">In Seconds</span></h1>
+      <p class="subhead">Modern, professional meeting rooms with flexible hourly rates. No hassle, just scan, select, and book instantly.</p>
+      <div class="cta-row">
+        <!-- ✅ Book Now: internal booking page -->
+        <a class="btn primary" href="book/">Book Now</a>
+        <!-- Watch Office Tour: still using Drive link -->
+        <a class="btn ghost" href="https://drive.google.com/file/d/1GUPy5zZ07FRKAoQV5IYLWpIS2g2i7lt4/view" target="_blank" rel="noopener">Watch Office Tour</a>
+      </div>
+    </section>
+  </div>
 
-        <div class="grid">
-          <div>
-            <label>Meeting Room</label>
-            <div class="field">
-              <span class="icon"><svg viewBox="0 0 24 24"><path d="M3 21h18M6 21V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v16M10 9h4M10 13h4M10 17h4" /></svg></span>
-            <select id="room"></select>
-            </div>
+  <main>
+    <section class="container features" id="rooms">
+      <h2 class="section-title">Why Choose Us?</h2>
+      <p class="section-sub">Experience hassle-free booking with modern amenities and flexible pricing</p>
+      <div class="cards">
+        <article class="card">
+          <h3><span class="icon" aria-hidden="true">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M5 12l4 4L19 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </span>Instant Booking</h3>
+          <p>Scan QR code, select your slot, and book instantly. No waiting, no paperwork.</p>
+        </article>
+        <article class="card">
+          <h3><span class="icon" aria-hidden="true">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 8v4l3 3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2"/></svg>
+          </span>Flexible Hours</h3>
+          <p>Book by the hour during office hours. Pay only for what you need.</p>
+        </article>
+        <article class="card">
+          <h3><span class="icon" aria-hidden="true">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 1l9 4v6c0 5-3.8 9.5-9 11-5.2-1.5-9-6-9-11V5l9-4z" stroke="currentColor" stroke-width="2" fill="none"/><path d="M9 12l2 2 4-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </span>Secure Payment</h3>
+          <p>Safe and secure online payments through Razorpay. Instant confirmation.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="how" id="booking">
+      <div class="container">
+        <h2 class="section-title" style="text-align:center;">How It Works</h2>
+        <p class="section-sub">Three simple steps to your perfect meeting space</p>
+        <div class="steps">
+          <div class="step">
+            <div class="badge">01</div>
+            <h3>Scan QR Code</h3>
+            <p>Use your phone to scan the QR code at our location or access the booking page directly.</p>
           </div>
-
-          <div>
-            <label>Date</label>
-            <div class="field">
-              <span class="icon"><svg viewBox="0 0 24 24"><path d="M16 2v3M8 2v3M3 9h18M5 5h14a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2z"/></svg></span>
-              <input type="date" id="date" placeholder="dd-mm-yyyy">
-            </div>
-            <div id="dateHint" class="muted" style="display:none;">Past dates are disabled</div>
+          <div class="step">
+            <div class="badge">02</div>
+            <h3>Choose Your Slot</h3>
+            <p>Select your preferred room, date, and time. See real-time availability instantly.</p>
           </div>
-
-          <div>
-            <label>Number of People</label>
-            <div class="field">
-              <span class="icon"><svg viewBox="0 0 24 24"><path d="M7 21v-2a4 4 0 0 1 4-4h2a4 4 0 0 1 4 4v2M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z"/></svg></span>
-              <input type="number" id="pax" min="1" value="2" placeholder="2">
-            </div>
+          <div class="step">
+            <div class="badge">03</div>
+            <h3>Pay &amp; Confirm</h3>
+            <p>Complete secure payment and receive instant confirmation. You’re all set!</p>
           </div>
-
-          <div>
-            <label>Full Name</label>
-            <div class="field">
-              <span class="icon"><svg viewBox="0 0 24 24"><path d="M12 12a5 5 0 1 0-5-5 5 5 0 0 0 5 5Zm6 9a6 6 0 0 0-12 0"/></svg></span>
-              <input id="name" placeholder="John Doe" autocomplete="name">
-            </div>
-          </div>
-
-          <div>
-            <label>Email</label>
-            <div class="field">
-              <span class="icon"><svg viewBox="0 0 24 24"><path d="M4 6h16a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2zm0 0 8 6 8-6"/></svg></span>
-              <input id="email" type="email" placeholder="name@example.com" autocomplete="email" required>
-            </div>
-          </div>
-
-          <div>
-            <label>Phone</label>
-            <div class="field">
-              <span class="icon"><svg viewBox="0 0 24 24"><path d="M22 16.92v2a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 3.15 8.81 19.79 19.79 0 0 1 .08 0a2 2 0 0 1 2-2h2a2 2 0 0 1 2 1.72 12.44 12.44 0 0 0 .67 2.73 2 2 0 0 1-.45 2.11L5.6 7.6a16 16 0 0 0 6.8 6.8l3-3a2 2 0 0 1 2.11-.45 12.44 12.44 0 0 0 2.73.67A2 2 0 0 1 22 16.92z"/></svg></span>
-              <input id="phone" type="tel" inputmode="numeric" placeholder="9876543210" pattern="[6-9][0-9]{9}" required>
-            </div>
-          </div>
-
-          <div class="grid" style="grid-column:1/-1; grid-template-columns:1fr;">
-            <div>
-              <label>Employee Names</label>
-              <div class="field">
-                <span class="icon"><svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2M8 7a4 4 0 1 0 0-8 4 4 0 0 0 0 8Zm8 8a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z"/></svg></span>
-                <input id="employees" placeholder="e.g., A Sharma, R Gupta">
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div id="priceNote" class="muted"></div>
-        <div id="status"></div>
-
-        <div class="row-actions">
-          <button class="btn btn-primary" id="btnFind">Find Available Slots</button>
-          <button class="btn btn-ghost" id="btnReset" onclick="clearForm()">Reset</button>
-        </div>
-
-        <section id="slotsWrap" class="slots-section hide">
-          <div class="slots-title">Available 1-hour slots</div>
-          <div id="slots" class="slot-list"></div>
-        </section>
-
-        <div class="row-actions single sticky-footer">
-          <button class="btn btn-primary btn-lg hide" id="btnConfirm" disabled>Pay &amp; Confirm</button>
-        </div>
-
-        <div id="confirmBox" class="hide">
-          <div id="confirmText" class="muted"></div>
         </div>
       </div>
+    </section>
 
-      <div id="resultWrap" class="hide"></div>
-    </main>
+    <section class="cta-bleed">
+      <div class="container">
+        <div class="cta-inner">
+          <h3>Ready to Book Your Meeting Room?</h3>
+          <p>Join hundreds of professionals who trust Hunger Pangs CoWorks for their meeting space needs.</p>
+          <!-- ✅ Same internal booking link -->
+          <a class="btn" style="background:#fff; color:var(--brand-700); border:1px solid rgba(15,23,42,.12);"
+             href="book/">Get Started Now</a>
+        </div>
+      </div>
+    </section>
+  </main>
 
-    <script>
-      /* ---------- CONFIG: your Apps Script Web App ---------- */
-      const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwvPb4u5oTwWd56uSyQ2qpQNfvTB1JLm196uZ_1WCAjVjVSZOPWEk7NM88MGnDhmcgrpg/exec";
-
-      // optional ?room=Decision%20Den for pre-select
-      const prefillRoom = new URLSearchParams(location.search).get("room") || "";
-
-      /* ---------- Backend helper ---------- */
-      function callApi(fn, payload) {
-        return new Promise((resolve, reject) => {
-          const cbName =
-            "__jsonp_cb_" + Date.now() + "_" + Math.floor(Math.random() * 100000);
-
-          const url = new URL(WEB_APP_URL);
-          url.searchParams.set("fn", fn);
-          if (payload && Object.keys(payload).length) {
-            url.searchParams.set("payload", JSON.stringify(payload));
-          }
-          // JSONP callback parameter
-          url.searchParams.set("callback", cbName);
-
-          const script = document.createElement("script");
-          script.src = url.toString();
-          script.async = true;
-
-          const timeout = setTimeout(() => {
-            cleanup();
-            reject(new Error("Request timeout"));
-          }, 20000);
-
-          function cleanup() {
-            clearTimeout(timeout);
-            if (script.parentNode) script.parentNode.removeChild(script);
-            delete window[cbName];
-          }
-
-          window[cbName] = function (data) {
-            cleanup();
-            resolve(data);
-          };
-
-          script.onerror = function () {
-            cleanup();
-            reject(new Error("Network error"));
-          };
-
-          document.head.appendChild(script);
-        });
-      }
-
-      /* ---------- State ---------- */
-      let roomsConfig = null;
-      let runtime = { mode:'MOCK', keyId:'', merchantName:'Hunger Pangs CoWorks' };
-
-      let currentBookingId = null;   // BookingGroupId from server
-      let lastPayload = null;
-      let lastAmount = 0;
-      let selectedSlots = [];        // [{start,end,label,price}]
-      let lastPricePerHour = 0;
-
-      /* ---------- UI helpers ---------- */
-      function setFindButton(text, handler, disabled=false){
-        const btn = document.getElementById('btnFind');
-        btn.textContent = text;
-        btn.onclick = handler;
-        btn.disabled = !!disabled;
-      }
-      function setConfirmButton(visible, disabled){
-        const b = document.getElementById('btnConfirm');
-        b.classList.toggle('hide', !visible);
-        if (typeof disabled !== 'undefined') b.disabled = !!disabled;
-      }
-      function setStatus(msg, type){
-        const el = document.getElementById('status');
-        el.className = type || '';
-        el.textContent = msg || '';
-      }
-      function showConfirm(t){
-        const c=document.getElementById('confirmBox');
-        document.getElementById('confirmText').textContent=t;
-        c.classList.remove('hide');
-      }
-      function hideConfirm(){
-        document.getElementById('confirmBox').classList.add('hide');
-        document.getElementById('confirmText').textContent='';
-      }
-
-      function showResult(html){
-        document.getElementById('bookingUI').classList.add('hide');
-        const r = document.getElementById('resultWrap');
-        r.innerHTML = html;
-        r.classList.remove('hide');
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-      }
-      function backToBooking(){
-        document.getElementById('resultWrap').classList.add('hide');
-        document.getElementById('resultWrap').innerHTML = '';
-        document.getElementById('bookingUI').classList.remove('hide');
-        clearForm();
-      }
-
-      /* ---------- validation ---------- */
-      function isValidEmail(e){ return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test((e||'').trim()); }
-      function isValidPhone(p){ return /^[6-9]\d{9}$/.test((p||'').trim()); }
-
-      /* ---------- date handling ---------- */
-      function isoTodayLocal(){
-        const now=new Date();
-        const tzOff=now.getTimezoneOffset()*60000;
-        return new Date(now - tzOff).toISOString().slice(0,10);
-      }
-      function lockPastDates(){
-        const el=document.getElementById('date');
-        const t=isoTodayLocal();
-        el.min=t;
-        if(!el.value||el.value<t) el.value=t;
-        updateDateState();
-      }
-      function updateDateState(){
-        const el=document.getElementById('date'), hint=document.getElementById('dateHint'), btn=document.getElementById('btnFind');
-        const t=isoTodayLocal();
-        if(!el.value){ hint.style.display='none'; btn.disabled=true; return; }
-        if(el.value<t){ hint.style.display='block'; hint.textContent='Past dates are disabled'; btn.disabled=true; }
-        else{ hint.style.display='none'; btn.disabled=false; }
-      }
-
-      /* ---------- formatting helpers ---------- */
-      function toHuman(hhmm){
-        const [H,M]=hhmm.split(':').map(Number);
-        const am=H<12; let h=H%12; if(h===0) h=12;
-        return `${h}:${String(M).padStart(2,'0')} ${am?'am':'pm'}`;
-      }
-      function toHumanRange(open, close){ return `${toHuman(open)} – ${toHuman(close)}`; }
-      function maxHHMM(a,b){
-        const [ah,am]=a.split(':').map(Number), [bh,bm]=b.split(':').map(Number);
-        if(ah>bh) return a;
-        if(ah<bh) return b;
-        return (am>=bm)?a:b;
-      }
-
-      /* ---------- load runtime + rooms (from Apps Script) ---------- */
-      async function loadRuntimeAndRooms() {
-        try {
-          const rt = await callApi("apiGetRuntime");
-          runtime = rt || runtime;
-
-          const r = await callApi("apiGetRooms");
-          roomsConfig = r;
-
-          const sel = document.getElementById('room');
-          sel.innerHTML = '';
-          Object.keys(r).forEach(k => {
-            const o = document.createElement('option');
-            o.value = k;
-            o.textContent = `${k} (₹${r[k].price}/hr)`;
-            sel.appendChild(o);
-          });
-
-          if (prefillRoom && roomsConfig[prefillRoom]) sel.value = prefillRoom;
-          if (Object.keys(r).length === 1) sel.value = Object.keys(r)[0];
-
-          updatePriceNote();
-          setFindButton('Find Available Slots', findSlots);
-          setConfirmButton(false);
-          setStatus('', '');
-        } catch (err) {
-          console.error(err);
-          setStatus('Server error while loading rooms. Please try again.', 'err');
-          setFindButton('Retry', () => {
-            setStatus('', '');
-            loadRuntimeAndRooms();
-          });
-        }
-      }
-
-      function updatePriceNote(){
-        const room=document.getElementById('room').value;
-        if(!room||!roomsConfig) return;
-        const cfg=roomsConfig[room];
-        const openAdj=maxHHMM(cfg.officeOpen,'09:00');
-        const hoursHuman=toHumanRange(openAdj,cfg.officeClose);
-        document.getElementById('priceNote').textContent =
-          `Office hours: ${hoursHuman} • Rate: ₹${cfg.price} per hour`;
-      }
-
-      /* ---------- clear ---------- */
-      function clearForm(){
-        document.getElementById('pax').value=2;
-        document.getElementById('name').value='';
-        document.getElementById('email').value='';
-        document.getElementById('phone').value='';
-        document.getElementById('employees').value='';
-        document.getElementById('slots').innerHTML='';
-        document.getElementById('slotsWrap').classList.add('hide');
-        hideConfirm();
-        setStatus('','');
-        currentBookingId=null;
-        lastPayload=null;
-        lastAmount=0;
-        selectedSlots=[];
-        setFindButton('Find Available Slots', findSlots);
-        setConfirmButton(false);
-        updateDateState();
-      }
-
-      /* ---------- slots ---------- */
-      async function findSlots(){
-        hideConfirm();
-        updateDateState();
-        if(document.getElementById('btnFind').disabled) return;
-
-        const name=document.getElementById('name').value.trim();
-        const email=document.getElementById('email').value.trim();
-        const phone=document.getElementById('phone').value.trim();
-        if(!name) return setStatus('Please enter your name.','err');
-        if(!isValidEmail(email)) return setStatus('Please enter a valid email address.','err');
-        if(!isValidPhone(phone)) return setStatus('Please enter a valid 10-digit phone number.','err');
-
-        const payload={
-          room:document.getElementById('room').value,
-          date:document.getElementById('date').value,
-          pax:parseInt(document.getElementById('pax').value||'1',10)
-        };
-        if(!payload.date) return setStatus('Please select a date.','err');
-
-        setStatus('Finding available slots…','');
-        setFindButton('Finding…', ()=>{}, true);
-        setConfirmButton(false);
-
-        try {
-          const res = await callApi('apiGetAvailableSlots', payload);
-          if(!res.ok){
-            setStatus(`❌ ${res.reason || 'Could not fetch slots'}`, 'err');
-            setFindButton('Find Available Slots', findSlots);
-            return;
-          }
-          lastPricePerHour = Number(res.pricePerHour||0);
-          renderSlots(res.slots, res.pricePerHour);
-          setFindButton('Find Available Slots', findSlots);
-          setConfirmButton(true, true);
-          setStatus(
-            res.slots.length ?
-              'Select one or more slots, then click Pay & Confirm.' :
-              'No slots available for this date.',
-            res.slots.length ? 'ok' : 'err'
-          );
-        } catch (err) {
-          console.error(err);
-          setStatus('Server error while loading slots. Please try again.', 'err');
-          setFindButton('Find Available Slots', findSlots);
-        }
-      }
-
-      function renderSlots(slots, pricePerHour){
-        const wrap=document.getElementById('slots');
-        wrap.innerHTML='';
-        document.getElementById('slotsWrap').classList.remove('hide');
-        selectedSlots=[];
-        if(!slots||!slots.length){
-          wrap.innerHTML='<div class="muted">No available 1-hour slots.</div>';
-          return;
-        }
-        slots.forEach((s,i)=>{
-          const id='slot_'+i;
-          const row=document.createElement('label');
-          row.className='slot';
-          row.innerHTML = `
-            <input type="checkbox" name="slot" id="${id}" value="${s.start}|${s.end}" />
-            <div><strong>${s.label}</strong></div>
-          `;
-          const input = row.querySelector('input');
-          input.addEventListener('change', function(){
-            if (this.checked){
-              selectedSlots.push({ start:s.start, end:s.end, label:s.label, price:pricePerHour });
-            } else {
-              selectedSlots = selectedSlots.filter(x => !(x.start===s.start && x.end===s.end));
-            }
-            const cnt = selectedSlots.length;
-            const est = cnt * (pricePerHour||0);
-            if (cnt>0){
-              showConfirm(`Selected ${cnt} slot${cnt>1?'s':''}. Estimated: ₹${est}`);
-              setConfirmButton(true, false);
-            } else {
-              hideConfirm();
-              setConfirmButton(true, true);
-            }
-          });
-          wrap.appendChild(row);
-        });
-      }
-
-      /* ---------- success / failure cards ---------- */
-      function showSuccessCard(data){
-        const slotLines = (data.slots||[]).map(t=>`<div style="text-align:right;">${t}</div>`).join('');
-        const html = `
-          <div class="result">
-            <div class="tick">
-              <svg viewBox="0 0 24 24" width="42" height="42" stroke="currentColor" fill="none" stroke-width="2">
-                <path d="M20 6L9 17l-5-5"/>
-              </svg>
-            </div>
-            <h2>Booking Confirmed!</h2>
-            <p class="sub">Your meeting room has been successfully reserved.</p>
-
-            <div class="detail-box">
-              <div class="k">Room:</div><div class="v">${data.room}</div>
-              <div class="k">Date:</div><div class="v">${data.date}</div>
-              <div class="k">Time Slot(s):</div><div class="v" style="text-align:left">${slotLines}</div>
-              <div class="k">People:</div><div class="v">${data.pax}</div>
-              <div class="k">Total Amount:</div><div class="v">₹${data.amount}</div>
-            </div>
-
-            <div class="row-actions single">
-              <button class="btn btn-primary btn-lg" onclick="backToBooking()">Make Another Booking</button>
-            </div>
-          </div>
-        `;
-        showResult(html);
-      }
-
-      function showFailureCard(message){
-        const html = `
-          <div class="result">
-            <div class="cross">
-              <svg viewBox="0 0 24 24" width="42" height="42" stroke="currentColor" fill="none" stroke-width="2">
-                <path d="M18 6L6 18M6 6l12 12"/>
-              </svg>
-            </div>
-            <h2>Payment Failed</h2>
-            <p class="sub">${message || 'Something went wrong while processing your payment.'}</p>
-
-            <div class="row-actions">
-              <button class="btn btn-primary btn-lg" onclick="retryPayment()">Try Payment Again</button>
-              <button class="btn btn-ghost btn-lg" onclick="backToBooking()">Back to Slots</button>
-            </div>
-          </div>
-        `;
-        showResult(html);
-      }
-
-      function retryPayment(){
-        document.getElementById('resultWrap').classList.add('hide');
-        document.getElementById('resultWrap').innerHTML = '';
-        document.getElementById('bookingUI').classList.remove('hide');
-        if (currentBookingId) {
-          setStatus('Reopening payment…','');
-          openRazorpay();
-        } else {
-          setStatus('Please select slot(s) and click Pay & Confirm.','');
-        }
-      }
-
-      /* ---------- payment path ---------- */
-      document.getElementById('btnConfirm').onclick = initiateThenPay;
-
-      async function initiateThenPay(){
-        if(!selectedSlots.length) return setStatus('Please select at least one slot.','err');
-        const payload={
-          room:document.getElementById('room').value,
-          date:document.getElementById('date').value,
-          slots: selectedSlots.map(s=>({start:s.start, end:s.end})),
-          pax:parseInt(document.getElementById('pax').value||'1',10),
-          name:document.getElementById('name').value.trim(),
-          email:document.getElementById('email').value.trim(),
-          phone:document.getElementById('phone').value.trim(),
-          employees:document.getElementById('employees').value.trim()
-        };
-        lastPayload = payload;
-
-        setConfirmButton(true, true);
-        setStatus('Creating booking…','');
-
-        try {
-          const init = await callApi('apiInitiateBooking', payload);
-          if(!init||!init.ok){
-            setStatus('❌ Could not create booking: ' + (init && init.reason ? init.reason : 'Unknown'), 'err');
-            setConfirmButton(true, false);
-            return;
-          }
-          currentBookingId=init.bookingId;
-          lastAmount=init.amount;
-
-          if(runtime.mode==='MOCK'){
-            setStatus(`Slot(s) locked. Amount: ₹${init.amount}. Processing mock payment…`, 'ok');
-            showSuccessCard({
-              room: payload.room,
-              date: payload.date,
-              slots: selectedSlots.map(s=>s.label || (toHuman(s.start)+' – '+toHuman(s.end))),
-              pax: payload.pax,
-              amount: lastAmount
-            });
-          } else {
-            setStatus('Opening payment…','');
-            openRazorpay();
-          }
-        } catch (err) {
-          console.error(err);
-          setStatus('Server error while creating booking. Please try again.','err');
-          setConfirmButton(true, false);
-        }
-      }
-
-      async function openRazorpay() {
-        try {
-          const o = await callApi('apiCreateOrder', { bookingId: currentBookingId });
-
-          if (!o || !o.ok) {
-            showFailureCard(o && o.reason ? o.reason : 'Order creation failed.');
-            setConfirmButton(true, false);
-            return;
-          }
-
-          const firstLabel =
-            selectedSlots[0]?.label ||
-            (selectedSlots[0] ? (toHuman(selectedSlots[0].start)+' – '+toHuman(selectedSlots[0].end)) : '');
-          const desc =
-            (lastPayload?.room||'') + ' • ' +
-            (lastPayload?.date||'') +
-            (firstLabel ? (' • ' + firstLabel + (selectedSlots.length>1?` (+${selectedSlots.length-1} more)`:'')) : '');
-
-          const options = {
-            key: o.keyId,
-            order_id: o.orderId,
-            amount: o.amount,
-            currency: o.currency || 'INR',
-            name: o.name || runtime.merchantName,
-            description: desc,
-            prefill: o.prefill || {},
-            notes: { bookingId: currentBookingId },
-
-            handler: function (resp) {
-              // notify backend that client saw success
-              callApi('onClientPaymentSuccess', {
-                bookingId: currentBookingId,
-                paymentId: resp.razorpay_payment_id,
-                orderId: resp.razorpay_order_id
-              }).catch(()=>{});
-              setStatus('Payment success. Finalizing booking…','ok');
-            },
-
-            modal: { ondismiss:function(){ setConfirmButton(true,false); } },
-            theme: { color: '#1D4ED8' }
-          };
-
-          setStatus('Opening payment gateway…','');
-          setConfirmButton(true,true);
-          startFinalizePolling(currentBookingId, /*enableFallback=*/true);
-
-          const rzp = new Razorpay(options);
-          rzp.on('payment.failed', function(resp){
-            const msg = resp?.error?.description || 'Your payment could not be completed.';
-            showFailureCard(msg);
-            setConfirmButton(true, false);
-          });
-          rzp.open();
-
-        } catch (err) {
-          console.error(err);
-          showFailureCard('Could not create order. Please try again.');
-          setConfirmButton(true, false);
-        }
-      }
-
-      /* ---------- polling with server fallback ---------- */
-      function startFinalizePolling(bookingId, enableFallback){
-        let tries = 0;
-        const maxTries = 30; // ~60s
-        const timer = setInterval(() => {
-          tries++;
-
-          callApi('apiGetBookingStatus', { bookingId })
-            .then(s => {
-              if (!s || !s.ok) return;
-
-              if (s.status === 'booked') {
-                clearInterval(timer);
-                showSuccessCard({
-                  room: lastPayload.room,
-                  date: lastPayload.date,
-                  slots: selectedSlots.map(s=>s.label || (toHuman(s.start)+' – '+toHuman(s.end))),
-                  pax: lastPayload.pax,
-                  amount: lastAmount
-                });
-                return;
-              }
-
-              if (s.status === 'paid_but_slot_taken' || s.status === 'failed') {
-                clearInterval(timer);
-                showFailureCard('Payment received but booking failed due to slot conflict. Please contact support.');
-                setFindButton('Find Available Slots', findSlots);
-                setConfirmButton(true, false);
-                return;
-              }
-
-              if (enableFallback && tries % 5 === 0) {
-                callApi('apiFinalizeIfPaid', { bookingId }).catch(()=>{});
-              }
-            })
-            .catch(err => {
-              console.error(err);
-            });
-
-          if (tries >= maxTries) {
-            clearInterval(timer);
-            showFailureCard('Payment received. Booking is still processing — please try again in a moment.');
-            setFindButton('Find Available Slots', findSlots);
-            setConfirmButton(true, false);
-          }
-        }, 2000);
-      }
-
-      /* ---------- init ---------- */
-      document.getElementById('btnFind').onclick = findSlots;
-      document.getElementById('date').addEventListener('input', updateDateState);
-      document.getElementById('room').addEventListener('change', updatePriceNote);
-
-      lockPastDates();
-      loadRuntimeAndRooms();
-    </script>
-  </body>
+  <footer>
+    <div class="container footgrid">
+      <div>
+        <h4>Hunger Pangs CoWorks</h4>
+        <p style="margin:0; max-width:420px;">Professional meeting spaces for modern businesses.</p>
+      </div>
+      <div>
+        <h4>Quick Links</h4>
+        <a href="book/">Book Now</a>
+        <a href="https://drive.google.com/file/d/1GUPy5zZ07FRKAoQV5IYLWpIS2g2i7lt4/view" target="_blank" rel="noopener">Watch Office Tour</a>
+      </div>
+      <div>
+        <h4>Support</h4>
+        <a href="mailto:reception.coworks@burmaburma.in">Contact Us</a>
+        <a href="#">Terms of Service</a>
+      </div>
+      <div>
+        <h4>Contact</h4>
+        <a href="mailto:reception.coworks@burmaburma.in">reception.coworks@burmaburma.in</a>
+        <a href="tel:+919867100005">+91 98671 00005</a>
+      </div>
+    </div>
+    <div class="container foot-note">© 2025 Hunger Pangs CoWorks. All rights reserved.</div>
+  </footer>
+</body>
 </html>
