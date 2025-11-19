@@ -2,6 +2,7 @@
 <html>
   <head>
     <meta charset="utf-8" />
+    <base target="_top" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>Hunger Pangs CoWorks</title>
 
@@ -89,12 +90,11 @@
       .muted { color:var(--muted); font-size:12px; margin-top:6px; }
       .ok { color:var(--success); margin-top:6px; }
       .err { color:var(--error); margin-top:6px; }
-
       #priceNote {
         margin-top:4px;
-        font-weight:600;      /* bold */
-        color: var(--ink);    /* darker text */
-        font-size:13px;       /* slightly bigger */
+        font-weight:600;        /* bold */
+        color: var(--ink);      /* darker */
+        font-size:13px;         /* slightly bigger */
       }
 
       /* Slots */
@@ -131,7 +131,6 @@
       @media (max-width: 640px){ .detail-box { grid-template-columns:1fr; } .detail-box .v { text-align:left; } }
     </style>
 
-    <!-- Razorpay Checkout JS -->
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
   </head>
 
@@ -158,7 +157,7 @@
             <label>Meeting Room</label>
             <div class="field">
               <span class="icon"><svg viewBox="0 0 24 24"><path d="M3 21h18M6 21V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v16M10 9h4M10 13h4M10 17h4" /></svg></span>
-              <select id="room"></select>
+            <select id="room"></select>
             </div>
           </div>
 
@@ -240,62 +239,60 @@
     </main>
 
     <script>
-      // ==== CONFIG: Apps Script Web App URL ====
-      const API_BASE = 'https://script.google.com/macros/s/AKfycbwvPb4u5oTwWd56uSyQ2qpQNfvTB1JLm196uZ_1WCAjVjVSZOPWEk7NM88MGnDhmcgrpg/exec';
+      /* ---------- CONFIG: your Apps Script Web App ---------- */
+      const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwvPb4u5oTwWd56uSyQ2qpQNfvTB1JLm196uZ_1WCAjVjVSZOPWEk7NM88MGnDhmcgrpg/exec";
 
-      const prefillRoom = '';  // no server templating now
+      // optional ?room=Decision%20Den for pre-select
+      const prefillRoom = new URLSearchParams(location.search).get("room") || "";
 
+      /* ---------- Backend helper ---------- */
+      async function callApi(fn, payload) {
+        const url = new URL(WEB_APP_URL);
+        url.searchParams.set("fn", fn);
+        if (payload && Object.keys(payload).length) {
+          url.searchParams.set("payload", JSON.stringify(payload));
+        }
+
+        const res = await fetch(url.toString(), { method: "GET" });
+        if (!res.ok) throw new Error("HTTP " + res.status);
+        return await res.json();
+      }
+
+      /* ---------- State ---------- */
       let roomsConfig = null;
       let runtime = { mode:'MOCK', keyId:'', merchantName:'Hunger Pangs CoWorks' };
 
-      // booking state
-      let currentBookingId = null;
+      let currentBookingId = null;   // BookingGroupId from server
       let lastPayload = null;
       let lastAmount = 0;
-      let selectedSlots = [];
+      let selectedSlots = [];        // [{start,end,label,price}]
       let lastPricePerHour = 0;
 
-      // ---------- generic API helper (GET with JSON in query) ----------
-      async function callApi(action, payload) {
-        const url =
-          API_BASE +
-          '?action=' + encodeURIComponent(action) +
-          '&payload=' + encodeURIComponent(JSON.stringify(payload || {}));
-
-        const res = await fetch(url, { method: 'GET' });
-        if (!res.ok) throw new Error('HTTP ' + res.status);
-        return res.json();
-      }
-
-      // ---------- UI helpers ----------
+      /* ---------- UI helpers ---------- */
       function setFindButton(text, handler, disabled=false){
         const btn = document.getElementById('btnFind');
         btn.textContent = text;
         btn.onclick = handler;
         btn.disabled = !!disabled;
       }
-
       function setConfirmButton(visible, disabled){
         const b = document.getElementById('btnConfirm');
         b.classList.toggle('hide', !visible);
         if (typeof disabled !== 'undefined') b.disabled = !!disabled;
       }
-
       function setStatus(msg, type){
         const el = document.getElementById('status');
         el.className = type || '';
         el.textContent = msg || '';
       }
-
       function showConfirm(t){
-        const c = document.getElementById('confirmBox');
-        document.getElementById('confirmText').textContent = t;
+        const c=document.getElementById('confirmBox');
+        document.getElementById('confirmText').textContent=t;
         c.classList.remove('hide');
       }
-
       function hideConfirm(){
         document.getElementById('confirmBox').classList.add('hide');
-        document.getElementById('confirmText').textContent = '';
+        document.getElementById('confirmText').textContent='';
       }
 
       function showResult(html){
@@ -305,7 +302,6 @@
         r.classList.remove('hide');
         window.scrollTo({ top: 0, behavior: 'smooth' });
       }
-
       function backToBooking(){
         document.getElementById('resultWrap').classList.add('hide');
         document.getElementById('resultWrap').innerHTML = '';
@@ -313,195 +309,171 @@
         clearForm();
       }
 
-      // ---------- validation ----------
+      /* ---------- validation ---------- */
       function isValidEmail(e){ return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test((e||'').trim()); }
       function isValidPhone(p){ return /^[6-9]\d{9}$/.test((p||'').trim()); }
 
-      // ---------- past date handling ----------
+      /* ---------- date handling ---------- */
       function isoTodayLocal(){
-        const now = new Date();
-        const tzOff = now.getTimezoneOffset() * 60000;
+        const now=new Date();
+        const tzOff=now.getTimezoneOffset()*60000;
         return new Date(now - tzOff).toISOString().slice(0,10);
       }
-
       function lockPastDates(){
-        const el = document.getElementById('date');
-        const t = isoTodayLocal();
-        el.min = t;
-        if (!el.value || el.value < t) el.value = t;
+        const el=document.getElementById('date');
+        const t=isoTodayLocal();
+        el.min=t;
+        if(!el.value||el.value<t) el.value=t;
         updateDateState();
       }
-
       function updateDateState(){
-        const el   = document.getElementById('date');
-        const hint = document.getElementById('dateHint');
-        const btn  = document.getElementById('btnFind');
-        const t = isoTodayLocal();
-
-        if (!el.value){
-          hint.style.display = 'none';
-          btn.disabled = true;
-          return;
-        }
-        if (el.value < t){
-          hint.style.display = 'block';
-          hint.textContent = 'Past dates are disabled';
-          btn.disabled = true;
-        } else {
-          hint.style.display = 'none';
-          btn.disabled = false;
-        }
+        const el=document.getElementById('date'), hint=document.getElementById('dateHint'), btn=document.getElementById('btnFind');
+        const t=isoTodayLocal();
+        if(!el.value){ hint.style.display='none'; btn.disabled=true; return; }
+        if(el.value<t){ hint.style.display='block'; hint.textContent='Past dates are disabled'; btn.disabled=true; }
+        else{ hint.style.display='none'; btn.disabled=false; }
       }
 
-      // ---------- formatting ----------
+      /* ---------- formatting helpers ---------- */
       function toHuman(hhmm){
-        const [H,M] = hhmm.split(':').map(Number);
-        const am = H < 12;
-        let h = H % 12;
-        if (h === 0) h = 12;
-        return `${h}:${String(M).padStart(2,'0')} ${am ? 'am' : 'pm'}`;
+        const [H,M]=hhmm.split(':').map(Number);
+        const am=H<12; let h=H%12; if(h===0) h=12;
+        return `${h}:${String(M).padStart(2,'0')} ${am?'am':'pm'}`;
       }
-
-      function toHumanRange(open, close){
-        return `${toHuman(open)} – ${toHuman(close)}`;
-      }
-
+      function toHumanRange(open, close){ return `${toHuman(open)} – ${toHuman(close)}`; }
       function maxHHMM(a,b){
-        const [ah,am] = a.split(':').map(Number);
-        const [bh,bm] = b.split(':').map(Number);
-        if (ah > bh) return a;
-        if (ah < bh) return b;
-        return (am >= bm) ? a : b;
+        const [ah,am]=a.split(':').map(Number), [bh,bm]=b.split(':').map(Number);
+        if(ah>bh) return a;
+        if(ah<bh) return b;
+        return (am>=bm)?a:b;
       }
 
-      // ---------- bootstrap: load runtime + rooms from backend ----------
-      async function loadRuntimeAndRooms(){
+      /* ---------- load runtime + rooms (from Apps Script) ---------- */
+      async function loadRuntimeAndRooms() {
         try {
-          const rt = await callApi('runtime', {});
+          const rt = await callApi("apiGetRuntime");
           runtime = rt || runtime;
 
-          const r = await callApi('rooms', {});
-          roomsConfig = r || {};
+          const r = await callApi("apiGetRooms");
+          roomsConfig = r;
 
           const sel = document.getElementById('room');
           sel.innerHTML = '';
-          Object.keys(roomsConfig).forEach(k=>{
+          Object.keys(r).forEach(k => {
             const o = document.createElement('option');
             o.value = k;
-            o.textContent = `${k} (₹${roomsConfig[k].price}/hr)`;
+            o.textContent = `${k} (₹${r[k].price}/hr)`;
             sel.appendChild(o);
           });
 
           if (prefillRoom && roomsConfig[prefillRoom]) sel.value = prefillRoom;
-          if (Object.keys(roomsConfig).length === 1) sel.value = Object.keys(roomsConfig)[0];
+          if (Object.keys(r).length === 1) sel.value = Object.keys(r)[0];
 
           updatePriceNote();
           setFindButton('Find Available Slots', findSlots);
           setConfirmButton(false);
-        } catch (err){
+          setStatus('', '');
+        } catch (err) {
           console.error(err);
           setStatus('Server error while loading rooms. Please try again.', 'err');
-          setFindButton('Retry', loadRuntimeAndRooms);
+          setFindButton('Retry', () => {
+            setStatus('', '');
+            loadRuntimeAndRooms();
+          });
         }
       }
 
       function updatePriceNote(){
-        if (!roomsConfig) return;
-        const room = document.getElementById('room').value;
-        if (!room || !roomsConfig[room]) return;
-        const cfg = roomsConfig[room];
-        const openAdj = maxHHMM(cfg.officeOpen, '09:00');
-        const hoursHuman = toHumanRange(openAdj, cfg.officeClose);
+        const room=document.getElementById('room').value;
+        if(!room||!roomsConfig) return;
+        const cfg=roomsConfig[room];
+        const openAdj=maxHHMM(cfg.officeOpen,'09:00');
+        const hoursHuman=toHumanRange(openAdj,cfg.officeClose);
         document.getElementById('priceNote').textContent =
           `Office hours: ${hoursHuman} • Rate: ₹${cfg.price} per hour`;
       }
 
-      // ---------- clear ----------
+      /* ---------- clear ---------- */
       function clearForm(){
-        document.getElementById('pax').value = 2;
-        document.getElementById('name').value = '';
-        document.getElementById('email').value = '';
-        document.getElementById('phone').value = '';
-        document.getElementById('employees').value = '';
-        document.getElementById('slots').innerHTML = '';
+        document.getElementById('pax').value=2;
+        document.getElementById('name').value='';
+        document.getElementById('email').value='';
+        document.getElementById('phone').value='';
+        document.getElementById('employees').value='';
+        document.getElementById('slots').innerHTML='';
         document.getElementById('slotsWrap').classList.add('hide');
         hideConfirm();
         setStatus('','');
-
-        currentBookingId = null;
-        lastPayload = null;
-        lastAmount = 0;
-        selectedSlots = [];
-
+        currentBookingId=null;
+        lastPayload=null;
+        lastAmount=0;
+        selectedSlots=[];
         setFindButton('Find Available Slots', findSlots);
         setConfirmButton(false);
         updateDateState();
       }
 
-      // ---------- slots ----------
+      /* ---------- slots ---------- */
       async function findSlots(){
         hideConfirm();
         updateDateState();
-        if (document.getElementById('btnFind').disabled) return;
+        if(document.getElementById('btnFind').disabled) return;
 
-        const name  = document.getElementById('name').value.trim();
-        const email = document.getElementById('email').value.trim();
-        const phone = document.getElementById('phone').value.trim();
+        const name=document.getElementById('name').value.trim();
+        const email=document.getElementById('email').value.trim();
+        const phone=document.getElementById('phone').value.trim();
+        if(!name) return setStatus('Please enter your name.','err');
+        if(!isValidEmail(email)) return setStatus('Please enter a valid email address.','err');
+        if(!isValidPhone(phone)) return setStatus('Please enter a valid 10-digit phone number.','err');
 
-        if (!name)              return setStatus('Please enter your name.','err');
-        if (!isValidEmail(email)) return setStatus('Please enter a valid email address.','err');
-        if (!isValidPhone(phone)) return setStatus('Please enter a valid 10-digit phone number.','err');
-
-        const payload = {
-          room: document.getElementById('room').value,
-          date: document.getElementById('date').value,
-          pax:  parseInt(document.getElementById('pax').value || '1', 10)
+        const payload={
+          room:document.getElementById('room').value,
+          date:document.getElementById('date').value,
+          pax:parseInt(document.getElementById('pax').value||'1',10)
         };
-        if (!payload.date) return setStatus('Please select a date.','err');
+        if(!payload.date) return setStatus('Please select a date.','err');
 
         setStatus('Finding available slots…','');
         setFindButton('Finding…', ()=>{}, true);
         setConfirmButton(false);
 
         try {
-          const res = await callApi('slots', payload);
-          if (!res.ok){
+          const res = await callApi('apiGetAvailableSlots', payload);
+          if(!res.ok){
             setStatus(`❌ ${res.reason || 'Could not fetch slots'}`, 'err');
             setFindButton('Find Available Slots', findSlots);
             return;
           }
-          lastPricePerHour = Number(res.pricePerHour || 0);
+          lastPricePerHour = Number(res.pricePerHour||0);
           renderSlots(res.slots, res.pricePerHour);
           setFindButton('Find Available Slots', findSlots);
           setConfirmButton(true, true);
           setStatus(
-            res.slots.length
-              ? 'Select one or more slots, then click Pay & Confirm.'
-              : 'No slots available for this date.',
+            res.slots.length ?
+              'Select one or more slots, then click Pay & Confirm.' :
+              'No slots available for this date.',
             res.slots.length ? 'ok' : 'err'
           );
-        } catch(err){
+        } catch (err) {
           console.error(err);
-          setStatus('Server error while fetching slots. Please try again.','err');
+          setStatus('Server error while loading slots. Please try again.', 'err');
           setFindButton('Find Available Slots', findSlots);
         }
       }
 
       function renderSlots(slots, pricePerHour){
-        const wrap = document.getElementById('slots');
-        wrap.innerHTML = '';
+        const wrap=document.getElementById('slots');
+        wrap.innerHTML='';
         document.getElementById('slotsWrap').classList.remove('hide');
-        selectedSlots = [];
-
-        if (!slots || !slots.length){
-          wrap.innerHTML = '<div class="muted">No available 1-hour slots.</div>';
+        selectedSlots=[];
+        if(!slots||!slots.length){
+          wrap.innerHTML='<div class="muted">No available 1-hour slots.</div>';
           return;
         }
-
         slots.forEach((s,i)=>{
-          const id = 'slot_' + i;
-          const row = document.createElement('label');
-          row.className = 'slot';
+          const id='slot_'+i;
+          const row=document.createElement('label');
+          row.className='slot';
           row.innerHTML = `
             <input type="checkbox" name="slot" id="${id}" value="${s.start}|${s.end}" />
             <div><strong>${s.label}</strong></div>
@@ -511,11 +483,11 @@
             if (this.checked){
               selectedSlots.push({ start:s.start, end:s.end, label:s.label, price:pricePerHour });
             } else {
-              selectedSlots = selectedSlots.filter(x => !(x.start === s.start && x.end === s.end));
+              selectedSlots = selectedSlots.filter(x => !(x.start===s.start && x.end===s.end));
             }
             const cnt = selectedSlots.length;
-            const est = cnt * (pricePerHour || 0);
-            if (cnt > 0){
+            const est = cnt * (pricePerHour||0);
+            if (cnt>0){
               showConfirm(`Selected ${cnt} slot${cnt>1?'s':''}. Estimated: ₹${est}`);
               setConfirmButton(true, false);
             } else {
@@ -527,11 +499,9 @@
         });
       }
 
-      // ---------- confirmation / failure views ----------
+      /* ---------- success / failure cards ---------- */
       function showSuccessCard(data){
-        const slotLines = (data.slots || [])
-          .map(t=>`<div style="text-align:right;">${t}</div>`)
-          .join('');
+        const slotLines = (data.slots||[]).map(t=>`<div style="text-align:right;">${t}</div>`).join('');
         const html = `
           <div class="result">
             <div class="tick">
@@ -590,21 +560,20 @@
         }
       }
 
-      // ---------- payment path ----------
+      /* ---------- payment path ---------- */
       document.getElementById('btnConfirm').onclick = initiateThenPay;
 
       async function initiateThenPay(){
-        if (!selectedSlots.length) return setStatus('Please select at least one slot.','err');
-
-        const payload = {
-          room: document.getElementById('room').value,
-          date: document.getElementById('date').value,
-          slots: selectedSlots.map(s=>({ start:s.start, end:s.end })),
-          pax:  parseInt(document.getElementById('pax').value || '1',10),
-          name: document.getElementById('name').value.trim(),
+        if(!selectedSlots.length) return setStatus('Please select at least one slot.','err');
+        const payload={
+          room:document.getElementById('room').value,
+          date:document.getElementById('date').value,
+          slots: selectedSlots.map(s=>({start:s.start, end:s.end})),
+          pax:parseInt(document.getElementById('pax').value||'1',10),
+          name:document.getElementById('name').value.trim(),
           email:document.getElementById('email').value.trim(),
           phone:document.getElementById('phone').value.trim(),
-          employees: document.getElementById('employees').value.trim()
+          employees:document.getElementById('employees').value.trim()
         };
         lastPayload = payload;
 
@@ -612,16 +581,16 @@
         setStatus('Creating booking…','');
 
         try {
-          const init = await callApi('initBooking', payload);
-          if (!init || !init.ok){
+          const init = await callApi('apiInitiateBooking', payload);
+          if(!init||!init.ok){
             setStatus('❌ Could not create booking: ' + (init && init.reason ? init.reason : 'Unknown'), 'err');
             setConfirmButton(true, false);
             return;
           }
-          currentBookingId = init.bookingId;
-          lastAmount = init.amount;
+          currentBookingId=init.bookingId;
+          lastAmount=init.amount;
 
-          if (runtime.mode === 'MOCK'){
+          if(runtime.mode==='MOCK'){
             setStatus(`Slot(s) locked. Amount: ₹${init.amount}. Processing mock payment…`, 'ok');
             showSuccessCard({
               room: payload.room,
@@ -634,45 +603,47 @@
             setStatus('Opening payment…','');
             openRazorpay();
           }
-        } catch(err){
+        } catch (err) {
           console.error(err);
           setStatus('Server error while creating booking. Please try again.','err');
           setConfirmButton(true, false);
         }
       }
 
-      async function openRazorpay(){
+      async function openRazorpay() {
         try {
-          const o = await callApi('createOrder', { bookingId: currentBookingId });
-          if (!o || !o.ok){
+          const o = await callApi('apiCreateOrder', { bookingId: currentBookingId });
+
+          if (!o || !o.ok) {
             showFailureCard(o && o.reason ? o.reason : 'Order creation failed.');
             setConfirmButton(true, false);
             return;
           }
 
-          const firstLabel = selectedSlots[0]
-            ? (selectedSlots[0].label || (toHuman(selectedSlots[0].start)+' – '+toHuman(selectedSlots[0].end)))
-            : '';
-          const desc = (lastPayload?.room || '') +
-                       ' • ' + (lastPayload?.date || '') +
-                       (firstLabel ? (' • ' + firstLabel + (selectedSlots.length>1 ? ` (+${selectedSlots.length-1} more)` : '')) : '');
+          const firstLabel =
+            selectedSlots[0]?.label ||
+            (selectedSlots[0] ? (toHuman(selectedSlots[0].start)+' – '+toHuman(selectedSlots[0].end)) : '');
+          const desc =
+            (lastPayload?.room||'') + ' • ' +
+            (lastPayload?.date||'') +
+            (firstLabel ? (' • ' + firstLabel + (selectedSlots.length>1?` (+${selectedSlots.length-1} more)`:'')) : '');
 
           const options = {
-            key:      o.keyId,
+            key: o.keyId,
             order_id: o.orderId,
-            amount:   o.amount,
+            amount: o.amount,
             currency: o.currency || 'INR',
-            name:     o.name || runtime.merchantName,
+            name: o.name || runtime.merchantName,
             description: desc,
-            prefill:  o.prefill || {},
-            notes:    { bookingId: currentBookingId },
+            prefill: o.prefill || {},
+            notes: { bookingId: currentBookingId },
 
-            handler: function(resp){
-              // notify backend that client success happened (webhook will still be source of truth)
-              callApi('clientSuccess', {
+            handler: function (resp) {
+              // notify backend that client saw success
+              callApi('onClientPaymentSuccess', {
                 bookingId: currentBookingId,
                 paymentId: resp.razorpay_payment_id,
-                orderId:   resp.razorpay_order_id
+                orderId: resp.razorpay_order_id
               }).catch(()=>{});
               setStatus('Payment success. Finalizing booking…','ok');
             },
@@ -683,7 +654,7 @@
 
           setStatus('Opening payment gateway…','');
           setConfirmButton(true,true);
-          startFinalizePolling(currentBookingId, true);
+          startFinalizePolling(currentBookingId, /*enableFallback=*/true);
 
           const rzp = new Razorpay(options);
           rzp.on('payment.failed', function(resp){
@@ -693,53 +664,53 @@
           });
           rzp.open();
 
-        } catch(err){
+        } catch (err) {
           console.error(err);
-          showFailureCard('Order creation failed. Please try again.');
+          showFailureCard('Could not create order. Please try again.');
           setConfirmButton(true, false);
         }
       }
 
-      // ---------- polling with server fallback ----------
+      /* ---------- polling with server fallback ---------- */
       function startFinalizePolling(bookingId, enableFallback){
         let tries = 0;
         const maxTries = 30; // ~60s
-
-        const timer = setInterval(async () => {
+        const timer = setInterval(() => {
           tries++;
-          try {
-            const s = await callApi('status', { bookingId });
-            if (!s || !s.ok) return;
 
-            if (s.status === 'booked'){
-              clearInterval(timer);
-              showSuccessCard({
-                room: lastPayload.room,
-                date: lastPayload.date,
-                slots: selectedSlots.map(s=>s.label || (toHuman(s.start)+' – '+toHuman(s.end))),
-                pax: lastPayload.pax,
-                amount: lastAmount
-              });
-              return;
-            }
+          callApi('apiGetBookingStatus', { bookingId })
+            .then(s => {
+              if (!s || !s.ok) return;
 
-            if (s.status === 'paid_but_slot_taken' || s.status === 'failed'){
-              clearInterval(timer);
-              showFailureCard('Payment received but booking failed due to slot conflict. Please contact support.');
-              setFindButton('Find Available Slots', findSlots);
-              setConfirmButton(true, false);
-              return;
-            }
+              if (s.status === 'booked') {
+                clearInterval(timer);
+                showSuccessCard({
+                  room: lastPayload.room,
+                  date: lastPayload.date,
+                  slots: selectedSlots.map(s=>s.label || (toHuman(s.start)+' – '+toHuman(s.end))),
+                  pax: lastPayload.pax,
+                  amount: lastAmount
+                });
+                return;
+              }
 
-            if (enableFallback && tries % 5 === 0){
-              // ask server to finalize if payment captured but webhook missed
-              callApi('finalize', { bookingId }).catch(()=>{});
-            }
-          } catch(err){
-            console.error(err);
-          }
+              if (s.status === 'paid_but_slot_taken' || s.status === 'failed') {
+                clearInterval(timer);
+                showFailureCard('Payment received but booking failed due to slot conflict. Please contact support.');
+                setFindButton('Find Available Slots', findSlots);
+                setConfirmButton(true, false);
+                return;
+              }
 
-          if (tries >= maxTries){
+              if (enableFallback && tries % 5 === 0) {
+                callApi('apiFinalizeIfPaid', { bookingId }).catch(()=>{});
+              }
+            })
+            .catch(err => {
+              console.error(err);
+            });
+
+          if (tries >= maxTries) {
             clearInterval(timer);
             showFailureCard('Payment received. Booking is still processing — please try again in a moment.');
             setFindButton('Find Available Slots', findSlots);
@@ -748,7 +719,7 @@
         }, 2000);
       }
 
-      // ---------- init ----------
+      /* ---------- init ---------- */
       document.getElementById('btnFind').onclick = findSlots;
       document.getElementById('date').addEventListener('input', updateDateState);
       document.getElementById('room').addEventListener('change', updatePriceNote);
