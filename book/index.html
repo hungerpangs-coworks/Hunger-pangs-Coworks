@@ -94,9 +94,9 @@
       .err { color:var(--error); margin-top:6px; }
       #priceNote {
         margin-top:4px;
-        font-weight:600;        /* bold */
-        color: var(--ink);      /* darker */
-        font-size:13px;         /* slightly bigger */
+        font-weight:600;
+        color: var(--ink);
+        font-size:13px;
       }
 
       /* Slots */
@@ -133,18 +133,18 @@
       @media (max-width: 640px){ .detail-box { grid-template-columns:1fr; } .detail-box .v { text-align:left; } }
     </style>
 
-    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <!-- CHANGE 1: Razorpay script removed (not needed for free bookings) -->
   </head>
 
   <body>
     <header class="hero" id="top">
-      <!-- Logo -->
       <a class="brand" href="../" aria-label="Back to Home">
         <img class="logo" src="https://raw.githubusercontent.com/hungerpangs-coworks/Hunger-pangs-Coworks/main/HPCLogo.png" alt="Hunger Pangs CoWorks Logo" />
       </a>
 
       <h1 class="title">Hunger Pangs CoWorks</h1>
-      <div class="subtitle">Scan the QR • Choose a Slot • Pay &amp; Confirm</div>
+      <!-- CHANGE 2: subtitle updated — no "Pay" mention -->
+      <div class="subtitle">Scan the QR • Choose a Slot • Confirm</div>
     </header>
 
     <main class="card">
@@ -159,7 +159,7 @@
             <label>Meeting Room</label>
             <div class="field">
               <span class="icon"><svg viewBox="0 0 24 24"><path d="M3 21h18M6 21V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v16M10 9h4M10 13h4M10 17h4" /></svg></span>
-            <select id="room"></select>
+              <select id="room"></select>
             </div>
           </div>
 
@@ -229,7 +229,8 @@
         </section>
 
         <div class="row-actions single sticky-footer">
-          <button class="btn btn-primary btn-lg hide" id="btnConfirm" disabled>Pay &amp; Confirm</button>
+          <!-- CHANGE 3: Button text updated from "Pay & Confirm" to "Confirm Booking" -->
+          <button class="btn btn-primary btn-lg hide" id="btnConfirm" disabled>Confirm Booking</button>
         </div>
 
         <div id="confirmBox" class="hide">
@@ -244,10 +245,9 @@
       /* ---------- CONFIG: your Apps Script Web App ---------- */
       const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwvPb4u5oTwWd56uSyQ2qpQNfvTB1JLm196uZ_1WCAjVjVSZOPWEk7NM88MGnDhmcgrpg/exec";
 
-      // optional ?room=Decision%20Den for pre-select
       const prefillRoom = new URLSearchParams(location.search).get("room") || "";
 
-      /* ---------- Backend helper ---------- */
+      /* ---------- Backend helper (JSONP) ---------- */
       function callApi(fn, payload) {
         return new Promise((resolve, reject) => {
           const cbName =
@@ -258,7 +258,6 @@
           if (payload && Object.keys(payload).length) {
             url.searchParams.set("payload", JSON.stringify(payload));
           }
-          // JSONP callback parameter
           url.searchParams.set("callback", cbName);
 
           const script = document.createElement("script");
@@ -294,10 +293,10 @@
       let roomsConfig = null;
       let runtime = { mode:'MOCK', keyId:'', merchantName:'Hunger Pangs CoWorks' };
 
-      let currentBookingId = null;   // BookingGroupId from server
+      let currentBookingId = null;
       let lastPayload = null;
       let lastAmount = 0;
-      let selectedSlots = [];        // [{start,end,label,price}]
+      let selectedSlots = [];
       let lastPricePerHour = 0;
 
       /* ---------- UI helpers ---------- */
@@ -375,12 +374,11 @@
       function toHumanRange(open, close){ return `${toHuman(open)} – ${toHuman(close)}`; }
       function maxHHMM(a,b){
         const [ah,am]=a.split(':').map(Number), [bh,bm]=b.split(':').map(Number);
-        if(ah>bh) return a;
-        if(ah<bh) return b;
+        if(ah>bh) return a; if(ah<bh) return b;
         return (am>=bm)?a:b;
       }
 
-      /* ---------- load runtime + rooms (from Apps Script) ---------- */
+      /* ---------- load runtime + rooms ---------- */
       async function loadRuntimeAndRooms() {
         try {
           const rt = await callApi("apiGetRuntime");
@@ -394,7 +392,9 @@
           Object.keys(r).forEach(k => {
             const o = document.createElement('option');
             o.value = k;
-            o.textContent = `${k} (₹${r[k].price}/hr)`;
+            // CHANGE 4: don't show (₹0/hr) in dropdown — show room name only
+            const price = Number(r[k].price);
+            o.textContent = price > 0 ? `${k} (₹${price}/hr)` : k;
             sel.appendChild(o);
           });
 
@@ -421,8 +421,10 @@
         const cfg=roomsConfig[room];
         const openAdj=maxHHMM(cfg.officeOpen,'09:00');
         const hoursHuman=toHumanRange(openAdj,cfg.officeClose);
+        // CHANGE 5: show "No Charge" when price is 0
+        const rateText = Number(cfg.price) === 0 ? 'No Charge' : `₹${cfg.price} per hour`;
         document.getElementById('priceNote').textContent =
-          `Office hours: ${hoursHuman} • Rate: ₹${cfg.price} per hour`;
+          `Office hours: ${hoursHuman} • Rate: ${rateText}`;
       }
 
       /* ---------- clear ---------- */
@@ -480,9 +482,10 @@
           renderSlots(res.slots, res.pricePerHour);
           setFindButton('Find Available Slots', findSlots);
           setConfirmButton(true, true);
+          // CHANGE 6: status message no longer says "Pay &"
           setStatus(
             res.slots.length ?
-              'Select one or more slots, then click Pay & Confirm.' :
+              'Select one or more slots, then click Confirm Booking.' :
               'No slots available for this date.',
             res.slots.length ? 'ok' : 'err'
           );
@@ -502,6 +505,7 @@
           wrap.innerHTML='<div class="muted">No available 1-hour slots.</div>';
           return;
         }
+        const isFree = Number(pricePerHour) === 0;
         slots.forEach((s,i)=>{
           const id='slot_'+i;
           const row=document.createElement('label');
@@ -520,7 +524,9 @@
             const cnt = selectedSlots.length;
             const est = cnt * (pricePerHour||0);
             if (cnt>0){
-              showConfirm(`Selected ${cnt} slot${cnt>1?'s':''}. Estimated: ₹${est}`);
+              // CHANGE 7: show "No Charge" instead of ₹0 in slot selection summary
+              const estText = isFree ? 'No Charge' : `Estimated: ₹${est}`;
+              showConfirm(`Selected ${cnt} slot${cnt>1?'s':''}. ${estText}`);
               setConfirmButton(true, false);
             } else {
               hideConfirm();
@@ -534,6 +540,8 @@
       /* ---------- success / failure cards ---------- */
       function showSuccessCard(data){
         const slotLines = (data.slots||[]).map(t=>`<div style="text-align:right;">${t}</div>`).join('');
+        // CHANGE 8: show "No Charge" instead of ₹0 on success card
+        const amountDisplay = Number(data.amount) === 0 ? 'No Charge' : `₹${data.amount}`;
         const html = `
           <div class="result">
             <div class="tick">
@@ -549,7 +557,7 @@
               <div class="k">Date:</div><div class="v">${data.date}</div>
               <div class="k">Time Slot(s):</div><div class="v" style="text-align:left">${slotLines}</div>
               <div class="k">People:</div><div class="v">${data.pax}</div>
-              <div class="k">Total Amount:</div><div class="v">₹${data.amount}</div>
+              <div class="k">Total Amount:</div><div class="v">${amountDisplay}</div>
             </div>
 
             <div class="row-actions single">
@@ -568,11 +576,12 @@
                 <path d="M18 6L6 18M6 6l12 12"/>
               </svg>
             </div>
-            <h2>Payment Failed</h2>
-            <p class="sub">${message || 'Something went wrong while processing your payment.'}</p>
+            <!-- CHANGE 9: failure heading updated — no "Payment" mention -->
+            <h2>Booking Failed</h2>
+            <p class="sub">${message || 'Something went wrong while processing your booking.'}</p>
 
             <div class="row-actions">
-              <button class="btn btn-primary btn-lg" onclick="retryPayment()">Try Payment Again</button>
+              <button class="btn btn-primary btn-lg" onclick="retryBooking()">Try Again</button>
               <button class="btn btn-ghost btn-lg" onclick="backToBooking()">Back to Slots</button>
             </div>
           </div>
@@ -580,22 +589,23 @@
         showResult(html);
       }
 
-      function retryPayment(){
+      // CHANGE 10: retryBooking replaces retryPayment — calls free booking flow
+      function retryBooking(){
         document.getElementById('resultWrap').classList.add('hide');
         document.getElementById('resultWrap').innerHTML = '';
         document.getElementById('bookingUI').classList.remove('hide');
         if (currentBookingId) {
-          setStatus('Reopening payment…','');
-          openRazorpay();
+          setStatus('Retrying booking…','');
+          confirmFreeBooking();
         } else {
-          setStatus('Please select slot(s) and click Pay & Confirm.','');
+          setStatus('Please select slot(s) and click Confirm Booking.','');
         }
       }
 
-      /* ---------- payment path ---------- */
-      document.getElementById('btnConfirm').onclick = initiateThenPay;
+      /* ---------- CHANGE 11: main confirm handler — free booking only ---------- */
+      document.getElementById('btnConfirm').onclick = initiateThenConfirm;
 
-      async function initiateThenPay(){
+      async function initiateThenConfirm(){
         if(!selectedSlots.length) return setStatus('Please select at least one slot.','err');
         const payload={
           room:document.getElementById('room').value,
@@ -619,22 +629,13 @@
             setConfirmButton(true, false);
             return;
           }
-          currentBookingId=init.bookingId;
-          lastAmount=init.amount;
+          currentBookingId = init.bookingId;
+          lastAmount = init.amount;
 
-          if(runtime.mode==='MOCK'){
-            setStatus(`Slot(s) locked. Amount: ₹${init.amount}. Processing mock payment…`, 'ok');
-            showSuccessCard({
-              room: payload.room,
-              date: payload.date,
-              slots: selectedSlots.map(s=>s.label || (toHuman(s.start)+' – '+toHuman(s.end))),
-              pax: payload.pax,
-              amount: lastAmount
-            });
-          } else {
-            setStatus('Opening payment…','');
-            openRazorpay();
-          }
+          // Always go straight to free booking — no Razorpay at all
+          setStatus('Processing your booking…', 'ok');
+          confirmFreeBooking();
+
         } catch (err) {
           console.error(err);
           setStatus('Server error while creating booking. Please try again.','err');
@@ -642,113 +643,35 @@
         }
       }
 
-      async function openRazorpay() {
-        try {
-          const o = await callApi('apiCreateOrder', { bookingId: currentBookingId });
+      /* ---------- CHANGE 12: confirmFreeBooking — calls apiConfirmFreeBooking ---------- */
+      async function confirmFreeBooking(){
+        setStatus('Confirming your booking and sending confirmation email…', 'ok');
+        setConfirmButton(true, true);
 
-          if (!o || !o.ok) {
-            showFailureCard(o && o.reason ? o.reason : 'Order creation failed.');
+        try {
+          const res = await callApi('apiConfirmFreeBooking', { bookingId: currentBookingId });
+
+          if (!res || !res.ok){
+            setStatus('❌ ' + (res && res.reason ? res.reason : 'Booking failed'), 'err');
             setConfirmButton(true, false);
+            showFailureCard(res && res.reason ? res.reason : 'Booking could not be confirmed. Please try again.');
             return;
           }
 
-          const firstLabel =
-            selectedSlots[0]?.label ||
-            (selectedSlots[0] ? (toHuman(selectedSlots[0].start)+' – '+toHuman(selectedSlots[0].end)) : '');
-          const desc =
-            (lastPayload?.room||'') + ' • ' +
-            (lastPayload?.date||'') +
-            (firstLabel ? (' • ' + firstLabel + (selectedSlots.length>1?` (+${selectedSlots.length-1} more)`:'')) : '');
-
-          const options = {
-            key: o.keyId,
-            order_id: o.orderId,
-            amount: o.amount,
-            currency: o.currency || 'INR',
-            name: o.name || runtime.merchantName,
-            description: desc,
-            prefill: o.prefill || {},
-            notes: { bookingId: currentBookingId },
-
-            handler: function (resp) {
-              // notify backend that client saw success
-              callApi('onClientPaymentSuccess', {
-                bookingId: currentBookingId,
-                paymentId: resp.razorpay_payment_id,
-                orderId: resp.razorpay_order_id
-              }).catch(()=>{});
-              setStatus('Payment success. Finalizing booking…','ok');
-            },
-
-            modal: { ondismiss:function(){ setConfirmButton(true,false); } },
-            theme: { color: '#1D4ED8' }
-          };
-
-          setStatus('Opening payment gateway…','');
-          setConfirmButton(true,true);
-          startFinalizePolling(currentBookingId, /*enableFallback=*/true);
-
-          const rzp = new Razorpay(options);
-          rzp.on('payment.failed', function(resp){
-            const msg = resp?.error?.description || 'Your payment could not be completed.';
-            showFailureCard(msg);
-            setConfirmButton(true, false);
+          showSuccessCard({
+            room: lastPayload.room,
+            date: lastPayload.date,
+            slots: selectedSlots.map(s => s.label || (toHuman(s.start) + ' – ' + toHuman(s.end))),
+            pax: lastPayload.pax,
+            amount: 0
           });
-          rzp.open();
 
         } catch (err) {
           console.error(err);
-          showFailureCard('Could not create order. Please try again.');
+          setStatus('Server error while confirming booking. Please try again.','err');
           setConfirmButton(true, false);
+          showFailureCard('Server error. Please try again.');
         }
-      }
-
-      /* ---------- polling with server fallback ---------- */
-      function startFinalizePolling(bookingId, enableFallback){
-        let tries = 0;
-        const maxTries = 30; // ~60s
-        const timer = setInterval(() => {
-          tries++;
-
-          callApi('apiGetBookingStatus', { bookingId })
-            .then(s => {
-              if (!s || !s.ok) return;
-
-              if (s.status === 'booked') {
-                clearInterval(timer);
-                showSuccessCard({
-                  room: lastPayload.room,
-                  date: lastPayload.date,
-                  slots: selectedSlots.map(s=>s.label || (toHuman(s.start)+' – '+toHuman(s.end))),
-                  pax: lastPayload.pax,
-                  amount: lastAmount
-                });
-                return;
-              }
-
-              if (s.status === 'paid_but_slot_taken' || s.status === 'failed') {
-                clearInterval(timer);
-                showFailureCard('Payment received but booking failed due to slot conflict. Please contact support.');
-                setFindButton('Find Available Slots', findSlots);
-                setConfirmButton(true, false);
-                return;
-              }
-
-              if (enableFallback && tries % 5 === 0) {
-                callApi('apiFinalizeIfPaid', { bookingId }).catch(()=>{});
-              }
-            })
-            .catch(err => {
-              console.error(err);
-            });
-
-          if (tries >= maxTries) {
-            clearInterval(timer);
-            showFailureCard('Payment received. Booking is still processing — please try again in a moment.');
-            setFindButton('Find Available Slots', findSlots);
-            setConfirmButton(true, false);
-          }
-        }, 2000);
       }
 
       /* ---------- init ---------- */
